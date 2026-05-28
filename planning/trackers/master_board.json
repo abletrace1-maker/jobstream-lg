@@ -1,0 +1,115 @@
+{
+  "projectName": "JobStream Agent",
+  "epics": [
+    {
+      "id": "E-01",
+      "name": "Batch Coordinator & Context Isolation Architecture",
+      "features": [
+        {
+          "id": "F-01",
+          "name": "Graph State & Pydantic Schemas",
+          "status": "IN_PROGRESS"
+        },
+        {
+          "id": "F-02",
+          "name": "Parent Graph Implementation",
+          "status": "PENDING"
+        },
+        {
+          "id": "F-03",
+          "name": "Child Sub-Graph Orchestration & Checkpointing",
+          "status": "PENDING"
+        }
+      ]
+    },
+    {
+      "id": "E-02",
+      "name": "Unified Job Ingestion & Parsing",
+      "features": [
+        {
+          "id": "F-04",
+          "name": "Web Scraper Utility",
+          "status": "PENDING"
+        },
+        {
+          "id": "F-05",
+          "name": "Job Ingestion Node (URL & Text Handling)",
+          "status": "PENDING"
+        },
+        {
+          "id": "F-06",
+          "name": "Resume to JSON Converter",
+          "status": "PENDING"
+        }
+      ]
+    },
+    {
+      "id": "E-03",
+      "name": "AI Fit Evaluation & Strategy Generation",
+      "features": [
+        {
+          "id": "F-07",
+          "name": "Evaluate Fit Node & Question Generation",
+          "status": "PENDING"
+        },
+        {
+          "id": "F-08",
+          "name": "Strategy & JSON Diff Generator Node",
+          "status": "PENDING"
+        },
+        {
+          "id": "F-09",
+          "name": "Revise Strategy Node",
+          "status": "PENDING"
+        }
+      ]
+    },
+    {
+      "id": "E-04",
+      "name": "Streamlit Human-in-the-Loop (HITL) UI",
+      "features": [
+        {
+          "id": "F-10",
+          "name": "Streamlit Setup & Checkpoint Reader",
+          "status": "PENDING"
+        },
+        {
+          "id": "F-11",
+          "name": "Clarification Interrupt UI",
+          "status": "PENDING"
+        },
+        {
+          "id": "F-12",
+          "name": "Strategy Approval & Diff Review UI",
+          "status": "PENDING"
+        },
+        {
+          "id": "F-13",
+          "name": "Job Tracker Syncing Mechanism",
+          "status": "PENDING"
+        }
+      ]
+    },
+    {
+      "id": "E-05",
+      "name": "Programmatic PDF Document Generation",
+      "features": [
+        {
+          "id": "F-14",
+          "name": "JSON Diff Applier Utility",
+          "status": "PENDING"
+        },
+        {
+          "id": "F-15",
+          "name": "Cover Letter Generator Node",
+          "status": "PENDING"
+        },
+        {
+          "id": "F-16",
+          "name": "WeasyPrint PDF Compiler Utility & Node",
+          "status": "PENDING"
+        }
+      ]
+    }
+  ]
+}
