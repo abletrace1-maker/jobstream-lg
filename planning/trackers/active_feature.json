@@ -15,13 +15,29 @@
         "Given the models are defined, When I instantiate them with missing required fields, Then a ValidationError is raised."
       ],
       "tasks": [
-        {"id": "T-1", "description": "Create src/schemas.py", "completed": false},
-        {"id": "T-2", "description": "Define JobTrackerEntry Pydantic model", "completed": false},
-        {"id": "T-3", "description": "Define BaseResumeSchema Pydantic model", "completed": false},
-        {"id": "T-4", "description": "Define JobDetailsSchema Pydantic model", "completed": false}
+        {
+          "id": "T-1",
+          "description": "Create src/schemas.py",
+          "completed": true
+        },
+        {
+          "id": "T-2",
+          "description": "Define JobTrackerEntry Pydantic model",
+          "completed": true
+        },
+        {
+          "id": "T-3",
+          "description": "Define BaseResumeSchema Pydantic model",
+          "completed": true
+        },
+        {
+          "id": "T-4",
+          "description": "Define JobDetailsSchema Pydantic model",
+          "completed": true
+        }
       ],
       "priority": 1,
-      "status": "PENDING",
+      "status": "DONE",
       "notes": ""
     },
     {
@@ -33,8 +49,16 @@
         "Given the ClarificationQuestion schema, When instantiated, Then it enforces the presence of an ID, type, question text, and options array."
       ],
       "tasks": [
-        {"id": "T-1", "description": "Define ClarificationQuestion Pydantic model in src/schemas.py", "completed": false},
-        {"id": "T-2", "description": "Define ResumeDiffSchema Pydantic model in src/schemas.py", "completed": false}
+        {
+          "id": "T-1",
+          "description": "Define ClarificationQuestion Pydantic model in src/schemas.py",
+          "completed": false
+        },
+        {
+          "id": "T-2",
+          "description": "Define ResumeDiffSchema Pydantic model in src/schemas.py",
+          "completed": false
+        }
       ],
       "priority": 2,
       "status": "PENDING",
@@ -49,9 +73,21 @@
         "Given the defined TypedDicts, When running a static type checker (mypy), Then the file passes without errors."
       ],
       "tasks": [
-        {"id": "T-1", "description": "Create src/state.py", "completed": false},
-        {"id": "T-2", "description": "Define ParentGraphState TypedDict incorporating schemas", "completed": false},
-        {"id": "T-3", "description": "Define ChildGraphState TypedDict incorporating schemas", "completed": false}
+        {
+          "id": "T-1",
+          "description": "Create src/state.py",
+          "completed": false
+        },
+        {
+          "id": "T-2",
+          "description": "Define ParentGraphState TypedDict incorporating schemas",
+          "completed": false
+        },
+        {
+          "id": "T-3",
+          "description": "Define ChildGraphState TypedDict incorporating schemas",
+          "completed": false
+        }
       ],
       "priority": 3,
       "status": "PENDING",
