@@ -52,16 +52,16 @@
         {
           "id": "T-1",
           "description": "Define ClarificationQuestion Pydantic model in src/schemas.py",
-          "completed": false
+          "completed": true
         },
         {
           "id": "T-2",
           "description": "Define ResumeDiffSchema Pydantic model in src/schemas.py",
-          "completed": false
+          "completed": true
         }
       ],
       "priority": 2,
-      "status": "PENDING",
+      "status": "DONE",
       "notes": ""
     },
     {

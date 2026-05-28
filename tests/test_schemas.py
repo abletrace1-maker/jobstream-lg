@@ -1,6 +1,12 @@
 import pytest
 from pydantic import ValidationError
-from src.schemas import JobTrackerEntry, BaseResumeSchema, JobDetailsSchema
+from src.schemas import (
+    JobTrackerEntry, 
+    BaseResumeSchema, 
+    JobDetailsSchema,
+    ClarificationQuestion,
+    ResumeDiffSchema
+)
 
 def test_job_tracker_entry_valid():
     data = {
@@ -91,3 +97,41 @@ def test_job_details_schema_valid():
 def test_job_details_schema_invalid():
     with pytest.raises(ValidationError):
         JobDetailsSchema(job_title="Missing Fields")
+
+def test_clarification_question_valid():
+    data = {
+      "id": "q1",
+      "type": "multiple_choice",
+      "question": "The job requires workflow orchestration. Which experience should we highlight most?",
+      "options": [
+        "Highlight the Airflow project from Tech Corp",
+        "Highlight the LangChain project from previous startup",
+        "Let the LLM decide the best approach based on job requirements"
+      ]
+    }
+    obj = ClarificationQuestion(**data)
+    assert obj.id == "q1"
+
+def test_clarification_question_invalid():
+    with pytest.raises(ValidationError):
+        ClarificationQuestion(id="q1", type="invalid_type", question="Q", options=[])
+
+def test_resume_diff_schema_valid():
+    data = {
+      "changes": [
+        {
+          "action": "replace",
+          "section": "professional_summary",
+          "old_value": "Experienced software engineer with a focus on scalable backend systems...",
+          "new_value": "Backend engineer specializing in Python and workflow orchestration...",
+          "reason": "Aligns with core job requirement"
+        }
+      ]
+    }
+    obj = ResumeDiffSchema(**data)
+    assert len(obj.changes) == 1
+    assert obj.changes[0].action == "replace"
+
+def test_resume_diff_schema_invalid():
+    with pytest.raises(ValidationError):
+        ResumeDiffSchema(changes=[{"action": "replace"}])

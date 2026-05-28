@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Literal
 from pydantic import BaseModel, Field
 
 class ContactInfo(BaseModel):
@@ -53,3 +53,19 @@ class JobDetailsSchema(BaseModel):
     nice_to_haves: List[str] = Field(default_factory=list)
     responsibilities: List[str]
     raw_text: str
+
+class ClarificationQuestion(BaseModel):
+    id: str
+    type: Literal["multiple_choice", "text"]
+    question: str
+    options: List[str]
+
+class ResumeChange(BaseModel):
+    action: str
+    section: str
+    old_value: str
+    new_value: str
+    reason: str
+
+class ResumeDiffSchema(BaseModel):
+    changes: List[ResumeChange]
