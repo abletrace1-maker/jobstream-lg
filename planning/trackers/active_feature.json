@@ -1,108 +1,130 @@
 {
   "project": "JobStream Agent",
-  "epicId": "E-01",
-  "featureId": "F-03",
-  "featureName": "Child Sub-Graph Orchestration & Checkpointing",
-  "description": "Implement the Child Sub-Graph to handle isolated execution per job, wire up stub nodes for the processing pipeline, and configure the LangGraph SqliteSaver checkpointer for Human-in-the-Loop interrupts.",
-  "status": "DONE",
+  "epicId": "E-02",
+  "featureId": "F-04",
+  "featureName": "Web Scraper Utility",
+  "description": "A resilient scraping utility capable of handling URLs with randomized delays and detecting anti-bot protections/CAPTCHAs to trigger fallback workflows.",
+  "status": "IN_PROGRESS",
   "userStories": [
     {
       "id": "US-001",
-      "title": "Define Child Sub-Graph Structure with Stub Nodes",
-      "description": "As a backend developer, I want to define the child graph with stub nodes for Evaluate, Clarify, Strategy, Review, Apply, Cover Letter, and PDF compilation so that the core Map-Reduce execution pipeline exists.",
+      "title": "Basic URL HTML Retrieval",
+      "description": "As a system coordinator, I want to fetch raw HTML from a given job URL so that the HTML can be sent to the ingestion parser.",
       "acceptanceCriteria": [
-        "Given the child graph is being constructed, When adding nodes, Then stubs for evaluate_fit, clarification, strategy_generator, human_review, apply_changes, cover_letter, and pdf_compiler are added.",
-        "Given the nodes are added, When defining edges, Then they are linked sequentially from START to END (e.g. evaluate_fit -> clarification -> ...)."
+        "Scenario: Successfully fetching HTML from a valid URL",
+        "Given a valid job URL",
+        "When the scraper is called",
+        "Then it returns the raw HTML text of the page",
+        "Scenario: Handling invalid URLs",
+        "Given an invalid or unreachable URL (e.g., 404, DNS error)",
+        "When the scraper is called",
+        "Then it raises a generic ScraperError that the ingestion node can catch"
       ],
       "tasks": [
         {
           "id": "T-1",
-          "description": "Create src/nodes/child_nodes.py with stub functions for the 7 processing nodes that return empty state updates.",
+          "description": "Create src/utils/scraper.py with basic ScraperError exception class",
           "completed": true
         },
         {
           "id": "T-2",
-          "description": "Create src/child_graph.py (or update src/graph.py) to build child_graph using StateGraph(ChildGraphState).",
+          "description": "Write fetch_html function using httpx or requests with standard user-agent headers",
           "completed": true
         },
         {
           "id": "T-3",
-          "description": "Add all child stub nodes and define a linear sequential edge flow.",
+          "description": "Implement basic error handling for 4xx/5xx status codes (excluding 403 for now)",
           "completed": true
         },
         {
           "id": "T-4",
-          "description": "Write pytest to verify child_graph compiles successfully.",
+          "description": "Write pytest unit tests for successful fetch and 404/DNS errors",
           "completed": true
         }
       ],
       "priority": 1,
       "status": "DONE",
-      "notes": "We only need stubs for now. The complex logic for Evaluate, Strategy, and HITL interrupts will be added in E-03 and E-04."
+      "notes": "Keep dependencies minimal, e.g., requests or httpx."
     },
     {
       "id": "US-002",
-      "title": "Configure SQLite Checkpointer for Child Graph",
-      "description": "As a systems engineer, I want to attach a SqliteSaver checkpointer to the compiled child graph so that long-running threads can persist state and pause at Human-in-the-Loop interrupts.",
+      "title": "Randomized Delays & Rate Limit Handling",
+      "description": "As a system coordinator, I want the scraper to use randomized delays and handle 429 responses so that it mimics human behavior and avoids triggering simple rate limits.",
       "acceptanceCriteria": [
-        "Given the application runs, When initializing the checkpointer, Then a SQLite database connection is established at data/checkpoints.sqlite.",
-        "Given the checkpointer is available, When compiling the child graph, Then it is configured with checkpointer=sqlite_saver.",
-        "Given the child graph is compiled, When execution reaches clarification or human_review, Then it halts via the interrupt_before setting."
+        "Scenario: Adding random delays before requests",
+        "Given the scraper is about to make a request",
+        "When it executes",
+        "Then it pauses for a random interval (e.g., 2-5 seconds) before making the request",
+        "Scenario: Handling HTTP 429 Too Many Requests",
+        "Given a target URL that responds with an HTTP 429",
+        "When the scraper receives this response",
+        "Then it automatically retries with exponential backoff up to a maximum limit before failing"
       ],
       "tasks": [
         {
           "id": "T-1",
-          "description": "Update src/child_graph.py to initialize SqliteSaver using from_conn_string('data/checkpoints.sqlite'). Ensure the data/ directory is created if missing.",
-          "completed": true
+          "description": "Implement a configurable delay mechanism using time.sleep and random.uniform",
+          "completed": false
         },
         {
           "id": "T-2",
-          "description": "Compile child_graph with the checkpointer and interrupt_before=['clarification', 'human_review'].",
-          "completed": true
+          "description": "Wrap the HTTP request in a retry mechanism (e.g., tenacity) specifically for HTTP 429 responses",
+          "completed": false
         },
         {
           "id": "T-3",
-          "description": "Write a test using MemorySaver (for testing) to demonstrate the graph pauses when reaching an interrupt node.",
-          "completed": true
-        }
-      ],
-      "priority": 2,
-      "status": "DONE",
-      "notes": "Make sure to import SqliteSaver from langgraph.checkpoint.sqlite. MemorySaver can be used in unit tests to avoid disk I/O."
-    },
-    {
-      "id": "US-003",
-      "title": "Connect Parent Graph to Child Graph via Send API",
-      "description": "As a graph architect, I want the parent graph to dispatch jobs directly to the compiled child graph so that end-to-end processing triggers the child logic.",
-      "acceptanceCriteria": [
-        "Given the ParentGraph is compiled, When map_to_job_processor returns Send objects, Then the target node is the compiled child_graph.",
-        "Given the ParentGraph executes, When the conditional edge maps to the child subgraph, Then the child subgraph runs with isolated state."
-      ],
-      "tasks": [
-        {
-          "id": "T-1",
-          "description": "Import the compiled child_graph into src/graph.py.",
-          "completed": true
-        },
-        {
-          "id": "T-2",
-          "description": "Replace dummy_process_job in the ParentGraph builder with builder.add_node('child_graph', child_graph).",
-          "completed": true
-        },
-        {
-          "id": "T-3",
-          "description": "Update map_to_job_processor to use Send('child_graph', child_state) instead of Send('process_job', child_state).",
-          "completed": true
+          "description": "Add logging to track delays, retries, and failures",
+          "completed": false
         },
         {
           "id": "T-4",
-          "description": "Write/update integration test to verify the Parent graph correctly dispatches to the Child graph stubs without errors.",
-          "completed": true
+          "description": "Write pytest unit tests simulating a 429 response and verifying the retry logic and backoff",
+          "completed": false
+        }
+      ],
+      "priority": 2,
+      "status": "PENDING",
+      "notes": "Ensure tests mock time.sleep to avoid slowing down the test suite."
+    },
+    {
+      "id": "US-003",
+      "title": "Anti-Bot & CAPTCHA Detection",
+      "description": "As a system coordinator, I want the scraper to detect when it has been blocked by a CAPTCHA or 403 Forbidden so that the system can cleanly fail and prompt the user for manual fallback.",
+      "acceptanceCriteria": [
+        "Scenario: Detecting HTTP 403 Forbidden",
+        "Given a target URL that responds with an HTTP 403",
+        "When the scraper makes the request",
+        "Then it immediately raises a specific AntiBotBlockError without retrying",
+        "Scenario: Detecting in-page CAPTCHAs",
+        "Given a target URL that returns a 200 OK but the HTML contains common CAPTCHA/Auth wall signatures",
+        "When the scraper processes the returned HTML",
+        "Then it detects the signature and raises the AntiBotBlockError"
+      ],
+      "tasks": [
+        {
+          "id": "T-1",
+          "description": "Create a custom AntiBotBlockError exception class",
+          "completed": false
+        },
+        {
+          "id": "T-2",
+          "description": "Update the fetch function to intercept 403 status codes and raise AntiBotBlockError",
+          "completed": false
+        },
+        {
+          "id": "T-3",
+          "description": "Add logic to inspect returned HTML text for common CAPTCHA keywords (e.g., 'Cloudflare', 'authwall', 'security check', 'captcha')",
+          "completed": false
+        },
+        {
+          "id": "T-4",
+          "description": "Write pytest unit tests using mocked HTML responses to trigger and assert the AntiBotBlockError",
+          "completed": false
         }
       ],
       "priority": 3,
-      "status": "DONE",
-      "notes": "Verify that LangGraph's Send API properly executes a compiled subgraph as a node."
+      "status": "PENDING",
+      "notes": "AntiBotBlockError must be distinct from generic ScraperErrors so the Parent Graph knows to switch job status to MANUAL_INPUT_REQUIRED."
     }
   ]
 }
