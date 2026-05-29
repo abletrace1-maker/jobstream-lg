@@ -4,7 +4,7 @@ import tempfile
 import pytest
 from unittest import mock
 
-from src.nodes.parent_nodes import load_config_and_resume
+from src.nodes.parent_nodes import job_ingestion, load_config_and_resume
 from src.schemas import BaseResumeSchema, JobTrackerEntry
 
 @pytest.fixture
@@ -105,3 +105,79 @@ def test_load_config_and_resume_creates_dummy(tmp_path):
                 assert updates["pending_jobs"][0].job_id == "dummy-123"
                 assert "base_resumes" in updates
                 assert len(updates["base_resumes"]) == 0
+
+
+def test_job_ingestion_extracts_targeted_text_from_url():
+    job = JobTrackerEntry(
+        job_id="job-1",
+        title="Data Analyst",
+        company="Acme",
+        source_type="url",
+        source="https://example.com/job",
+        category="data",
+        user_score="high",
+        notes="",
+        status="PENDING",
+    )
+    raw_html = """
+    <h1 class="topcard__title">Data Analyst</h1>
+    <div class="show-more-less-html__markup">Analyze metrics.</div>
+    """
+
+    with mock.patch("src.nodes.parent_nodes.scraper.uc.Chrome") as mock_chrome:
+        mock_driver = mock.Mock()
+        mock_chrome.return_value = mock_driver
+        with mock.patch("src.nodes.parent_nodes.scraper.fetch_url_stealth", return_value=raw_html) as mock_fetch:
+            updates = job_ingestion({"pending_jobs": [job], "scraped_jobs": []})
+
+    assert len(updates["scraped_jobs"]) == 1
+    scraped_job = updates["scraped_jobs"][0]
+    assert scraped_job.job_id == "job-1"
+    assert scraped_job.job_title == "Data Analyst"
+    assert "Core Description:\nAnalyze metrics." in scraped_job.raw_text
+    assert updates["failed_jobs"] == []
+    mock_fetch.assert_called_once_with(mock_driver, "https://example.com/job")
+    mock_driver.quit.assert_called_once()
+
+
+def test_job_ingestion_extracts_targeted_text_from_file(tmp_path):
+    source_file = tmp_path / "posting.html"
+    source_file.write_text(
+        "<h1 class='topcard__title'>Engineer</h1><div class='show-more-less-html__markup'>Build services.</div>"
+    )
+    job = JobTrackerEntry(
+        job_id="job-2",
+        title="Engineer",
+        company="Acme",
+        source_type="file",
+        source=str(source_file),
+        category="engineering",
+        user_score="medium",
+        notes="",
+        status="PENDING",
+    )
+
+    updates = job_ingestion({"pending_jobs": [job], "scraped_jobs": []})
+
+    assert len(updates["scraped_jobs"]) == 1
+    assert "Core Description:\nBuild services." in updates["scraped_jobs"][0].raw_text
+    assert updates["failed_jobs"] == []
+
+
+def test_job_ingestion_records_failed_jobs():
+    job = JobTrackerEntry(
+        job_id="job-3",
+        title="Engineer",
+        company="Acme",
+        source_type="unknown",
+        source="",
+        category="engineering",
+        user_score="medium",
+        notes="",
+        status="PENDING",
+    )
+
+    updates = job_ingestion({"pending_jobs": [job], "scraped_jobs": []})
+
+    assert updates["scraped_jobs"] == []
+    assert updates["failed_jobs"] == [job]

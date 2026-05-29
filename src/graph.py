@@ -3,7 +3,7 @@ from langgraph.types import Send
 from langgraph.graph import StateGraph, START, END
 
 from src.state import ParentGraphState, ChildGraphState, JobStatus
-from src.nodes.parent_nodes import load_config_and_resume
+from src.nodes.parent_nodes import job_ingestion, load_config_and_resume
 from src.child_graph import child_graph
 
 def map_to_job_processor(state: ParentGraphState) -> List[Send]:
@@ -72,7 +72,7 @@ builder = StateGraph(ParentGraphState)
 
 # Add nodes
 builder.add_node("load_config_and_resume", load_config_and_resume)
-builder.add_node("job_ingestion", dummy_job_ingestion)
+builder.add_node("job_ingestion", job_ingestion)
 builder.add_node("child_graph", child_graph)
 
 # Add edges
