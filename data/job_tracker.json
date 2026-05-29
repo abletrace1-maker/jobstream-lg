@@ -1,0 +1,13 @@
+[
+  {
+    "job_id": "dummy-123",
+    "title": "Software Engineer",
+    "company": "Tech Corp",
+    "source_type": "url",
+    "source": "https://example.com/job",
+    "category": "software_engineering",
+    "user_score": "high",
+    "notes": "Dummy job",
+    "status": "PENDING"
+  }
+]

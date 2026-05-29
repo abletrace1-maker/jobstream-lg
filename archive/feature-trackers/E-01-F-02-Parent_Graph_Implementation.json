@@ -1,0 +1,112 @@
+{
+  "project": "JobStream Agent",
+  "epicId": "E-01",
+  "featureId": "F-02",
+  "featureName": "Parent Graph Implementation",
+  "description": "Implement the Parent Graph (Batch Coordinator) which loads configurations, base resumes, and jobs, then orchestrates the Map-Reduce workflow by dispatching isolated child graphs using the LangGraph Send API.",
+  "status": "DONE",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Implement LoadConfigAndResumeNode",
+      "description": "As a batch coordinator, I want to load configuration, base resumes, and the job tracker queue so that the Parent Graph is seeded with all necessary starting data.",
+      "acceptanceCriteria": [
+        "Given the parent graph starts execution, When LoadConfigAndResumeNode runs, Then it reads job_tracker.json and parses the contents into JobTrackerEntry objects in the state.",
+        "Given the node runs, When it reads the json_resumes directory, Then it loads valid JSON files into BaseResumeSchema objects mapped by category in the state."
+      ],
+      "tasks": [
+        {
+          "id": "T-1",
+          "description": "Create src/nodes/parent_nodes.py",
+          "completed": true
+        },
+        {
+          "id": "T-2",
+          "description": "Implement load_config_and_resume logic to read job_tracker.json (or create a dummy one if missing)",
+          "completed": true
+        },
+        {
+          "id": "T-3",
+          "description": "Implement logic to read JSON base resumes from data/json_resumes/ and parse them via BaseResumeSchema",
+          "completed": true
+        },
+        {
+          "id": "T-4",
+          "description": "Write basic pytest for LoadConfigAndResumeNode in tests/test_parent_nodes.py",
+          "completed": true
+        }
+      ],
+      "priority": 1,
+      "status": "DONE",
+      "notes": "Assume the prompts and config are dictionaries for now, or just focus on resumes and tracker queue."
+    },
+    {
+      "id": "US-002",
+      "title": "Implement Subgraph Dispatch Mapper (Send API)",
+      "description": "As a backend developer, I want to use LangGraph's Send API to dispatch jobs into parallel sub-graphs so that multiple job applications can be processed concurrently with isolated state.",
+      "acceptanceCriteria": [
+        "Given the ParentGraphState has scraped_jobs, When the map_to_job_processor edge function is called, Then it returns a list of Send objects targeting the child subgraph.",
+        "Given a job with a category, When the Send object is constructed, Then it passes the correctly matched BaseResumeSchema to the ChildGraphState."
+      ],
+      "tasks": [
+        {
+          "id": "T-1",
+          "description": "Create src/graph.py",
+          "completed": true
+        },
+        {
+          "id": "T-2",
+          "description": "Write map_to_job_processor function using langgraph.types.Send",
+          "completed": true
+        },
+        {
+          "id": "T-3",
+          "description": "Implement logic to match job.category to the appropriate base_resume",
+          "completed": true
+        },
+        {
+          "id": "T-4",
+          "description": "Write pytest to verify the mapping logic correctly generates Send objects",
+          "completed": true
+        }
+      ],
+      "priority": 2,
+      "status": "DONE",
+      "notes": "We are passing scraped_jobs, but since JobIngestion is in F-05, we will need a dummy node or mock to move pending_jobs into scraped_jobs."
+    },
+    {
+      "id": "US-003",
+      "title": "Compile Parent StateGraph",
+      "description": "As a backend developer, I want to compile the Parent StateGraph so that the pipeline flows correctly from state initialization to sub-graph dispatch.",
+      "acceptanceCriteria": [
+        "Given the ParentGraphState, When defining the StateGraph, Then it connects START to load_config_and_resume.",
+        "Given the graph definition, When adding a stub job_ingestion node and the conditional Send edge, Then the graph compiles successfully."
+      ],
+      "tasks": [
+        {
+          "id": "T-1",
+          "description": "Define the Parent StateGraph using ParentGraphState in src/graph.py",
+          "completed": true
+        },
+        {
+          "id": "T-2",
+          "description": "Add load_config_and_resume node and a stub job_ingestion node",
+          "completed": true
+        },
+        {
+          "id": "T-3",
+          "description": "Add conditional edges from job_ingestion using map_to_job_processor",
+          "completed": true
+        },
+        {
+          "id": "T-4",
+          "description": "Write test to compile and verify the parent graph structure",
+          "completed": true
+        }
+      ],
+      "priority": 3,
+      "status": "DONE",
+      "notes": "The child subgraph isn't built yet (F-03), so use a stub node for 'process_job' to make the parent graph compile."
+    }
+  ]
+}
