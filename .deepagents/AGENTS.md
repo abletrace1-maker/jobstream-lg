@@ -16,12 +16,13 @@ Because this project uses Spec-Driven Development, you will be acting in one of 
   1. Generate the **PRD** (Product Requirements) and **TRD** (Technical Requirements). These are global project documents.
   2. Map out the high-level **Epics**.
   3. Iteratively break active Epics down into **Features**, then **User Stories** (with strict Gherkin Acceptance Criteria), and finally granular **Tasks** (3-7 per story).
-- **Rule:** Do not write code. Output specifications into `docs/` or `planning/` directories.
+- **Rule:** Do not write code. Output specifications into `planning/trackers` or `planning/docs` directories.
 
 ### If you are acting as the Coding Agent:
 - **Your Job:** You write the actual Python code, LangGraph nodes, and tests to fulfill the active User Story.
 - **Document Reading Strategy (CRITICAL):** 
   - **Always read the TRD:** It contains the exact JSON schemas, graph state definitions, and system architecture you must adhere to.
+  - **Additional Context/Docs:** The folder ./agent-design-documents contains additional documents with that were used to create the TRD and PRD. The file prompt_details.MD has guidance on how to create the prompts once you are that stage of development. Review these documents when you require.
   - **Do NOT read every feature/story document:** To preserve your token context, only read the specification file containing your *currently assigned User Story and Tasks*. Reading future or unrelated epics will cause hallucinations and context bloat.
 - **Execution:** Follow the 3-7 tasks assigned to you in a single context session. Do not start working on the next User Story until the current one is tested and committed.
 

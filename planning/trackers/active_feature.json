@@ -4,7 +4,7 @@
   "featureId": "F-02",
   "featureName": "Parent Graph Implementation",
   "description": "Implement the Parent Graph (Batch Coordinator) which loads configurations, base resumes, and jobs, then orchestrates the Map-Reduce workflow by dispatching isolated child graphs using the LangGraph Send API.",
-  "status": "IN_PROGRESS",
+  "status": "DONE",
   "userStories": [
     {
       "id": "US-001",
@@ -52,26 +52,26 @@
         {
           "id": "T-1",
           "description": "Create src/graph.py",
-          "completed": false
+          "completed": true
         },
         {
           "id": "T-2",
           "description": "Write map_to_job_processor function using langgraph.types.Send",
-          "completed": false
+          "completed": true
         },
         {
           "id": "T-3",
           "description": "Implement logic to match job.category to the appropriate base_resume",
-          "completed": false
+          "completed": true
         },
         {
           "id": "T-4",
           "description": "Write pytest to verify the mapping logic correctly generates Send objects",
-          "completed": false
+          "completed": true
         }
       ],
       "priority": 2,
-      "status": "PENDING",
+      "status": "DONE",
       "notes": "We are passing scraped_jobs, but since JobIngestion is in F-05, we will need a dummy node or mock to move pending_jobs into scraped_jobs."
     },
     {
@@ -86,26 +86,26 @@
         {
           "id": "T-1",
           "description": "Define the Parent StateGraph using ParentGraphState in src/graph.py",
-          "completed": false
+          "completed": true
         },
         {
           "id": "T-2",
           "description": "Add load_config_and_resume node and a stub job_ingestion node",
-          "completed": false
+          "completed": true
         },
         {
           "id": "T-3",
           "description": "Add conditional edges from job_ingestion using map_to_job_processor",
-          "completed": false
+          "completed": true
         },
         {
           "id": "T-4",
           "description": "Write test to compile and verify the parent graph structure",
-          "completed": false
+          "completed": true
         }
       ],
       "priority": 3,
-      "status": "PENDING",
+      "status": "DONE",
       "notes": "The child subgraph isn't built yet (F-03), so use a stub node for 'process_job' to make the parent graph compile."
     }
   ]
