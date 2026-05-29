@@ -234,6 +234,7 @@ dependencies = [
     { name = "pydantic" },
     { name = "pytest" },
     { name = "requests" },
+    { name = "tenacity" },
 ]
 
 [package.dev-dependencies]
@@ -249,6 +250,7 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.13.4" },
     { name = "pytest", specifier = ">=9.0.3" },
     { name = "requests", specifier = ">=2.34.2" },
+    { name = "tenacity", specifier = ">=9.1.4" },
 ]
 
 [package.metadata.requires-dev]

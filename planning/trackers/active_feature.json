@@ -2,129 +2,90 @@
   "project": "JobStream Agent",
   "epicId": "E-02",
   "featureId": "F-04",
-  "featureName": "Web Scraper Utility",
-  "description": "A resilient scraping utility capable of handling URLs with randomized delays and detecting anti-bot protections/CAPTCHAs to trigger fallback workflows.",
+  "featureName": "Integration of Existing Stealth Scraper and HTML Parser",
+  "description": "Integrate and adapt the existing stealth_page_fetch.py script for use within the Job Ingestion Node. Develop a targeted HTML parser based on parsed_data_map.md to extract key job details from the scraped content before LLM processing.",
   "status": "IN_PROGRESS",
   "userStories": [
     {
       "id": "US-001",
-      "title": "Basic URL HTML Retrieval",
-      "description": "As a system coordinator, I want to fetch raw HTML from a given job URL so that the HTML can be sent to the ingestion parser.",
+      "title": "Integrate Existing Stealth Scraper Utility",
+      "description": "As a system coordinator, I want to integrate the existing `stealth_page_fetch.py` script into the project so that it can be called by the Job Ingestion Node to retrieve and clean job page content.",
       "acceptanceCriteria": [
-        "Scenario: Successfully fetching HTML from a valid URL",
+        "Scenario: Successfully fetching and cleaning HTML using the existing script",
         "Given a valid job URL",
-        "When the scraper is called",
-        "Then it returns the raw HTML text of the page",
-        "Scenario: Handling invalid URLs",
-        "Given an invalid or unreachable URL (e.g., 404, DNS error)",
-        "When the scraper is called",
-        "Then it raises a generic ScraperError that the ingestion node can catch"
+        "When the integrated scraper utility is called from the Job Ingestion Node",
+        "Then it executes the `stealth_page_fetch.py` logic, returning cleaned markdown content",
+        "Scenario: Handling script execution errors",
+        "Given the underlying script fails (e.g., chromedriver issue, timeout)",
+        "When the scraper utility is called",
+        "Then it catches the exception and raises a standardized `ScraperError` that the ingestion node can handle"
       ],
       "tasks": [
         {
           "id": "T-1",
-          "description": "Create src/utils/scraper.py with basic ScraperError exception class",
-          "completed": true
+          "description": "Move the logic from `stealth_page_fetch.py` into a reusable function or class within a new `src/utils/scraper.py` module.",
+          "completed": false
         },
         {
           "id": "T-2",
-          "description": "Write fetch_html function using httpx or requests with standard user-agent headers",
-          "completed": true
+          "description": "Add `undetected-chromedriver` and its dependencies (`beautifulsoup4`, `markdownify`) to the `pyproject.toml` file.",
+          "completed": false
         },
         {
           "id": "T-3",
-          "description": "Implement basic error handling for 4xx/5xx status codes (excluding 403 for now)",
-          "completed": true
+          "description": "Implement robust error handling within the scraper utility to wrap potential exceptions in a custom `ScraperError`.",
+          "completed": false
         },
         {
           "id": "T-4",
-          "description": "Write pytest unit tests for successful fetch and 404/DNS errors",
-          "completed": true
+          "description": "Write integration tests for the scraper utility, mocking the webdriver to test success and failure cases without actual web requests.",
+          "completed": false
         }
       ],
       "priority": 1,
-      "status": "DONE",
-      "notes": "Keep dependencies minimal, e.g., requests or httpx."
+      "status": "PENDING",
+      "notes": "The scraper will be a more complex dependency than a simple HTTP client, so error handling is critical."
     },
     {
       "id": "US-002",
-      "title": "Randomized Delays & Rate Limit Handling",
-      "description": "As a system coordinator, I want the scraper to use randomized delays and handle 429 responses so that it mimics human behavior and avoids triggering simple rate limits.",
+      "title": "Implement Targeted Data Extraction Using HTML Mapping",
+      "description": "As a system coordinator, I want a utility that uses the `parsed_data_map.md` guidelines to extract key data sections from the raw HTML, so that a cleaner, more focused context can be sent to the LLM for final parsing.",
       "acceptanceCriteria": [
-        "Scenario: Adding random delays before requests",
-        "Given the scraper is about to make a request",
-        "When it executes",
-        "Then it pauses for a random interval (e.g., 2-5 seconds) before making the request",
-        "Scenario: Handling HTTP 429 Too Many Requests",
-        "Given a target URL that responds with an HTTP 429",
-        "When the scraper receives this response",
-        "Then it automatically retries with exponential backoff up to a maximum limit before failing"
+        "Scenario: Extracting key job sections from HTML",
+        "Given raw HTML content from a job page",
+        "When the HTML parsing utility is called",
+        "Then it uses BeautifulSoup and the selectors from `parsed_data_map.md` to extract the Job Title, Company Info, Core Description, and Job Criteria",
+        "And it returns a simplified, concatenated text block containing only these essential sections",
+        "Scenario: Handling HTML with missing sections",
+        "Given raw HTML that does not contain one of the mapped sections (e.g., no salary info)",
+        "When the HTML parsing utility is called",
+        "Then it gracefully skips the missing section and returns the content it did find without errors"
       ],
       "tasks": [
         {
           "id": "T-1",
-          "description": "Implement a configurable delay mechanism using time.sleep and random.uniform",
+          "description": "Create a new module `src/utils/html_parser.py`.",
           "completed": false
         },
         {
           "id": "T-2",
-          "description": "Wrap the HTTP request in a retry mechanism (e.g., tenacity) specifically for HTTP 429 responses",
+          "description": "Implement an `extract_job_details` function that takes raw HTML and returns a string containing only the text from the targeted selectors.",
           "completed": false
         },
         {
           "id": "T-3",
-          "description": "Add logging to track delays, retries, and failures",
+          "description": "Integrate the `html_parser` into the `JobIngestionNode` to be called after the scraper runs but before the LLM is invoked.",
           "completed": false
         },
         {
           "id": "T-4",
-          "description": "Write pytest unit tests simulating a 429 response and verifying the retry logic and backoff",
+          "description": "Write unit tests for the parser using sample HTML files to verify that it correctly extracts data and handles missing elements.",
           "completed": false
         }
       ],
       "priority": 2,
       "status": "PENDING",
-      "notes": "Ensure tests mock time.sleep to avoid slowing down the test suite."
-    },
-    {
-      "id": "US-003",
-      "title": "Anti-Bot & CAPTCHA Detection",
-      "description": "As a system coordinator, I want the scraper to detect when it has been blocked by a CAPTCHA or 403 Forbidden so that the system can cleanly fail and prompt the user for manual fallback.",
-      "acceptanceCriteria": [
-        "Scenario: Detecting HTTP 403 Forbidden",
-        "Given a target URL that responds with an HTTP 403",
-        "When the scraper makes the request",
-        "Then it immediately raises a specific AntiBotBlockError without retrying",
-        "Scenario: Detecting in-page CAPTCHAs",
-        "Given a target URL that returns a 200 OK but the HTML contains common CAPTCHA/Auth wall signatures",
-        "When the scraper processes the returned HTML",
-        "Then it detects the signature and raises the AntiBotBlockError"
-      ],
-      "tasks": [
-        {
-          "id": "T-1",
-          "description": "Create a custom AntiBotBlockError exception class",
-          "completed": false
-        },
-        {
-          "id": "T-2",
-          "description": "Update the fetch function to intercept 403 status codes and raise AntiBotBlockError",
-          "completed": false
-        },
-        {
-          "id": "T-3",
-          "description": "Add logic to inspect returned HTML text for common CAPTCHA keywords (e.g., 'Cloudflare', 'authwall', 'security check', 'captcha')",
-          "completed": false
-        },
-        {
-          "id": "T-4",
-          "description": "Write pytest unit tests using mocked HTML responses to trigger and assert the AntiBotBlockError",
-          "completed": false
-        }
-      ],
-      "priority": 3,
-      "status": "PENDING",
-      "notes": "AntiBotBlockError must be distinct from generic ScraperErrors so the Parent Graph knows to switch job status to MANUAL_INPUT_REQUIRED."
+      "notes": "This pre-processing step should reduce noise and improve the reliability of the final LLM-based parsing into the JobDetailsSchema."
     }
   ]
 }

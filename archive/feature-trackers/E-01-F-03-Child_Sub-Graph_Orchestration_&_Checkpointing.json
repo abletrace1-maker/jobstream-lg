@@ -1,0 +1,108 @@
+{
+  "project": "JobStream Agent",
+  "epicId": "E-01",
+  "featureId": "F-03",
+  "featureName": "Child Sub-Graph Orchestration & Checkpointing",
+  "description": "Implement the Child Sub-Graph to handle isolated execution per job, wire up stub nodes for the processing pipeline, and configure the LangGraph SqliteSaver checkpointer for Human-in-the-Loop interrupts.",
+  "status": "DONE",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Define Child Sub-Graph Structure with Stub Nodes",
+      "description": "As a backend developer, I want to define the child graph with stub nodes for Evaluate, Clarify, Strategy, Review, Apply, Cover Letter, and PDF compilation so that the core Map-Reduce execution pipeline exists.",
+      "acceptanceCriteria": [
+        "Given the child graph is being constructed, When adding nodes, Then stubs for evaluate_fit, clarification, strategy_generator, human_review, apply_changes, cover_letter, and pdf_compiler are added.",
+        "Given the nodes are added, When defining edges, Then they are linked sequentially from START to END (e.g. evaluate_fit -> clarification -> ...)."
+      ],
+      "tasks": [
+        {
+          "id": "T-1",
+          "description": "Create src/nodes/child_nodes.py with stub functions for the 7 processing nodes that return empty state updates.",
+          "completed": true
+        },
+        {
+          "id": "T-2",
+          "description": "Create src/child_graph.py (or update src/graph.py) to build child_graph using StateGraph(ChildGraphState).",
+          "completed": true
+        },
+        {
+          "id": "T-3",
+          "description": "Add all child stub nodes and define a linear sequential edge flow.",
+          "completed": true
+        },
+        {
+          "id": "T-4",
+          "description": "Write pytest to verify child_graph compiles successfully.",
+          "completed": true
+        }
+      ],
+      "priority": 1,
+      "status": "DONE",
+      "notes": "We only need stubs for now. The complex logic for Evaluate, Strategy, and HITL interrupts will be added in E-03 and E-04."
+    },
+    {
+      "id": "US-002",
+      "title": "Configure SQLite Checkpointer for Child Graph",
+      "description": "As a systems engineer, I want to attach a SqliteSaver checkpointer to the compiled child graph so that long-running threads can persist state and pause at Human-in-the-Loop interrupts.",
+      "acceptanceCriteria": [
+        "Given the application runs, When initializing the checkpointer, Then a SQLite database connection is established at data/checkpoints.sqlite.",
+        "Given the checkpointer is available, When compiling the child graph, Then it is configured with checkpointer=sqlite_saver.",
+        "Given the child graph is compiled, When execution reaches clarification or human_review, Then it halts via the interrupt_before setting."
+      ],
+      "tasks": [
+        {
+          "id": "T-1",
+          "description": "Update src/child_graph.py to initialize SqliteSaver using from_conn_string('data/checkpoints.sqlite'). Ensure the data/ directory is created if missing.",
+          "completed": true
+        },
+        {
+          "id": "T-2",
+          "description": "Compile child_graph with the checkpointer and interrupt_before=['clarification', 'human_review'].",
+          "completed": true
+        },
+        {
+          "id": "T-3",
+          "description": "Write a test using MemorySaver (for testing) to demonstrate the graph pauses when reaching an interrupt node.",
+          "completed": true
+        }
+      ],
+      "priority": 2,
+      "status": "DONE",
+      "notes": "Make sure to import SqliteSaver from langgraph.checkpoint.sqlite. MemorySaver can be used in unit tests to avoid disk I/O."
+    },
+    {
+      "id": "US-003",
+      "title": "Connect Parent Graph to Child Graph via Send API",
+      "description": "As a graph architect, I want the parent graph to dispatch jobs directly to the compiled child graph so that end-to-end processing triggers the child logic.",
+      "acceptanceCriteria": [
+        "Given the ParentGraph is compiled, When map_to_job_processor returns Send objects, Then the target node is the compiled child_graph.",
+        "Given the ParentGraph executes, When the conditional edge maps to the child subgraph, Then the child subgraph runs with isolated state."
+      ],
+      "tasks": [
+        {
+          "id": "T-1",
+          "description": "Import the compiled child_graph into src/graph.py.",
+          "completed": true
+        },
+        {
+          "id": "T-2",
+          "description": "Replace dummy_process_job in the ParentGraph builder with builder.add_node('child_graph', child_graph).",
+          "completed": true
+        },
+        {
+          "id": "T-3",
+          "description": "Update map_to_job_processor to use Send('child_graph', child_state) instead of Send('process_job', child_state).",
+          "completed": true
+        },
+        {
+          "id": "T-4",
+          "description": "Write/update integration test to verify the Parent graph correctly dispatches to the Child graph stubs without errors.",
+          "completed": true
+        }
+      ],
+      "priority": 3,
+      "status": "DONE",
+      "notes": "Verify that LangGraph's Send API properly executes a compiled subgraph as a node."
+    }
+  ]
+}
