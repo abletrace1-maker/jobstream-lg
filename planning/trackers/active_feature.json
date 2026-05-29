@@ -1,97 +1,112 @@
 {
   "project": "JobStream Agent",
   "epicId": "E-01",
-  "featureId": "F-01",
-  "featureName": "Graph State & Pydantic Schemas",
-  "description": "Define the core Pydantic models and TypedDicts that structure the state for the LangGraph Parent and Child graphs to ensure strict schema validation across the application.",
-  "status": "DONE",
+  "featureId": "F-02",
+  "featureName": "Parent Graph Implementation",
+  "description": "Implement the Parent Graph (Batch Coordinator) which loads configurations, base resumes, and jobs, then orchestrates the Map-Reduce workflow by dispatching isolated child graphs using the LangGraph Send API.",
+  "status": "IN_PROGRESS",
   "userStories": [
     {
       "id": "US-001",
-      "title": "Define Core Entity Schemas",
-      "description": "As a backend developer, I want to define strict Pydantic models for the core data entities (JobTrackerEntry, BaseResumeSchema, JobDetailsSchema) so that the application safely validates and parses inputs without data corruption.",
+      "title": "Implement LoadConfigAndResumeNode",
+      "description": "As a batch coordinator, I want to load configuration, base resumes, and the job tracker queue so that the Parent Graph is seeded with all necessary starting data.",
       "acceptanceCriteria": [
-        "Given the templates.MD specifications, When I instantiate the models with valid data dictionaries, Then the models parse successfully without validation errors.",
-        "Given the models are defined, When I instantiate them with missing required fields, Then a ValidationError is raised."
+        "Given the parent graph starts execution, When LoadConfigAndResumeNode runs, Then it reads job_tracker.json and parses the contents into JobTrackerEntry objects in the state.",
+        "Given the node runs, When it reads the json_resumes directory, Then it loads valid JSON files into BaseResumeSchema objects mapped by category in the state."
       ],
       "tasks": [
         {
           "id": "T-1",
-          "description": "Create src/schemas.py",
+          "description": "Create src/nodes/parent_nodes.py",
           "completed": true
         },
         {
           "id": "T-2",
-          "description": "Define JobTrackerEntry Pydantic model",
+          "description": "Implement load_config_and_resume logic to read job_tracker.json (or create a dummy one if missing)",
           "completed": true
         },
         {
           "id": "T-3",
-          "description": "Define BaseResumeSchema Pydantic model",
+          "description": "Implement logic to read JSON base resumes from data/json_resumes/ and parse them via BaseResumeSchema",
           "completed": true
         },
         {
           "id": "T-4",
-          "description": "Define JobDetailsSchema Pydantic model",
+          "description": "Write basic pytest for LoadConfigAndResumeNode in tests/test_parent_nodes.py",
           "completed": true
         }
       ],
       "priority": 1,
       "status": "DONE",
-      "notes": ""
+      "notes": "Assume the prompts and config are dictionaries for now, or just focus on resumes and tracker queue."
     },
     {
       "id": "US-002",
-      "title": "Define Workflow AI Schemas",
-      "description": "As a backend developer, I want to define Pydantic models for the AI reasoning outputs (ClarificationQuestion, ResumeDiffSchema) so that the HITL nodes receive predictable, structured data from the LLM.",
+      "title": "Implement Subgraph Dispatch Mapper (Send API)",
+      "description": "As a backend developer, I want to use LangGraph's Send API to dispatch jobs into parallel sub-graphs so that multiple job applications can be processed concurrently with isolated state.",
       "acceptanceCriteria": [
-        "Given the templates.MD JSON diff schema, When the ResumeDiffSchema is instantiated, Then it enforces the exact action/section/old_value/new_value/reason format.",
-        "Given the ClarificationQuestion schema, When instantiated, Then it enforces the presence of an ID, type, question text, and options array."
+        "Given the ParentGraphState has scraped_jobs, When the map_to_job_processor edge function is called, Then it returns a list of Send objects targeting the child subgraph.",
+        "Given a job with a category, When the Send object is constructed, Then it passes the correctly matched BaseResumeSchema to the ChildGraphState."
       ],
       "tasks": [
         {
           "id": "T-1",
-          "description": "Define ClarificationQuestion Pydantic model in src/schemas.py",
-          "completed": true
+          "description": "Create src/graph.py",
+          "completed": false
         },
         {
           "id": "T-2",
-          "description": "Define ResumeDiffSchema Pydantic model in src/schemas.py",
-          "completed": true
-        }
-      ],
-      "priority": 2,
-      "status": "DONE",
-      "notes": ""
-    },
-    {
-      "id": "US-003",
-      "title": "Define LangGraph State TypedDicts",
-      "description": "As a backend developer, I want to define the LangGraph State TypedDicts (ParentGraphState and ChildGraphState) so that data flows safely between graph nodes with strict type checking.",
-      "acceptanceCriteria": [
-        "Given the defined Pydantic models, When I define ParentGraphState and ChildGraphState, Then the types correctly reference the Pydantic models.",
-        "Given the defined TypedDicts, When running a static type checker (mypy), Then the file passes without errors."
-      ],
-      "tasks": [
-        {
-          "id": "T-1",
-          "description": "Create src/state.py",
-          "completed": true
-        },
-        {
-          "id": "T-2",
-          "description": "Define ParentGraphState TypedDict incorporating schemas",
-          "completed": true
+          "description": "Write map_to_job_processor function using langgraph.types.Send",
+          "completed": false
         },
         {
           "id": "T-3",
-          "description": "Define ChildGraphState TypedDict incorporating schemas",
-          "completed": true
+          "description": "Implement logic to match job.category to the appropriate base_resume",
+          "completed": false
+        },
+        {
+          "id": "T-4",
+          "description": "Write pytest to verify the mapping logic correctly generates Send objects",
+          "completed": false
+        }
+      ],
+      "priority": 2,
+      "status": "PENDING",
+      "notes": "We are passing scraped_jobs, but since JobIngestion is in F-05, we will need a dummy node or mock to move pending_jobs into scraped_jobs."
+    },
+    {
+      "id": "US-003",
+      "title": "Compile Parent StateGraph",
+      "description": "As a backend developer, I want to compile the Parent StateGraph so that the pipeline flows correctly from state initialization to sub-graph dispatch.",
+      "acceptanceCriteria": [
+        "Given the ParentGraphState, When defining the StateGraph, Then it connects START to load_config_and_resume.",
+        "Given the graph definition, When adding a stub job_ingestion node and the conditional Send edge, Then the graph compiles successfully."
+      ],
+      "tasks": [
+        {
+          "id": "T-1",
+          "description": "Define the Parent StateGraph using ParentGraphState in src/graph.py",
+          "completed": false
+        },
+        {
+          "id": "T-2",
+          "description": "Add load_config_and_resume node and a stub job_ingestion node",
+          "completed": false
+        },
+        {
+          "id": "T-3",
+          "description": "Add conditional edges from job_ingestion using map_to_job_processor",
+          "completed": false
+        },
+        {
+          "id": "T-4",
+          "description": "Write test to compile and verify the parent graph structure",
+          "completed": false
         }
       ],
       "priority": 3,
-      "status": "DONE",
-      "notes": ""
+      "status": "PENDING",
+      "notes": "The child subgraph isn't built yet (F-03), so use a stub node for 'process_job' to make the parent graph compile."
     }
   ]
 }
