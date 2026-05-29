@@ -25,3 +25,31 @@ def test_child_graph_compiles():
     
     for node in expected_nodes:
         assert node in nodes
+
+from langgraph.checkpoint.memory import MemorySaver
+from src.child_graph import child_builder
+
+def test_child_graph_interrupt():
+    """Verify that the child graph pauses at the interrupt node."""
+    memory = MemorySaver()
+    test_graph = child_builder.compile(
+        checkpointer=memory,
+        interrupt_before=["clarification", "human_review"]
+    )
+    
+    config = {"configurable": {"thread_id": "test_thread_1"}}
+    state = {
+        "job_id": "test_job_123",
+        "job_url": "http://test.com",
+        "job_description": "Test Engineer",
+        "company_name": "Test Co",
+        "user_profile": "Test Profile"
+    }
+    
+    # Run the graph
+    for event in test_graph.stream(state, config=config):
+        pass
+        
+    # Check if the graph is paused/interrupted
+    state_snapshot = test_graph.get_state(config)
+    assert state_snapshot.next == ("clarification",)

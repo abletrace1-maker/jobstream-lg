@@ -1,4 +1,7 @@
+import os
+import sqlite3
 from langgraph.graph import StateGraph, START, END
+from langgraph.checkpoint.sqlite import SqliteSaver
 
 from src.state import ChildGraphState
 from src.nodes.child_nodes import (
@@ -33,5 +36,20 @@ child_builder.add_edge("apply_changes", "cover_letter")
 child_builder.add_edge("cover_letter", "pdf_compiler")
 child_builder.add_edge("pdf_compiler", END)
 
+# Ensure data directory exists
+os.makedirs("data", exist_ok=True)
+
+# Initialize SqliteSaver checkpointer
+# Since from_conn_string is a context manager, we need to manually create the connection
+# if we want a global instance. Alternatively, we use context manager if we are inside a function.
+# The task says: initialize SqliteSaver using from_conn_string('data/checkpoints.sqlite').
+# Let's try to extract from context manager.
+# Actually, let's just create connection manually to keep it global.
+_conn = sqlite3.connect("data/checkpoints.sqlite", check_same_thread=False)
+sqlite_saver = SqliteSaver(_conn)
+
 # Compile child graph
-child_graph = child_builder.compile()
+child_graph = child_builder.compile(
+    checkpointer=sqlite_saver,
+    interrupt_before=["clarification", "human_review"]
+)

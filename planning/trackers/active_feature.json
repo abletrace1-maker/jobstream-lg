@@ -4,7 +4,7 @@
   "featureId": "F-03",
   "featureName": "Child Sub-Graph Orchestration & Checkpointing",
   "description": "Implement the Child Sub-Graph to handle isolated execution per job, wire up stub nodes for the processing pipeline, and configure the LangGraph SqliteSaver checkpointer for Human-in-the-Loop interrupts.",
-  "status": "IN_PROGRESS",
+  "status": "DONE",
   "userStories": [
     {
       "id": "US-001",
@@ -53,21 +53,21 @@
         {
           "id": "T-1",
           "description": "Update src/child_graph.py to initialize SqliteSaver using from_conn_string('data/checkpoints.sqlite'). Ensure the data/ directory is created if missing.",
-          "completed": false
+          "completed": true
         },
         {
           "id": "T-2",
           "description": "Compile child_graph with the checkpointer and interrupt_before=['clarification', 'human_review'].",
-          "completed": false
+          "completed": true
         },
         {
           "id": "T-3",
           "description": "Write a test using MemorySaver (for testing) to demonstrate the graph pauses when reaching an interrupt node.",
-          "completed": false
+          "completed": true
         }
       ],
       "priority": 2,
-      "status": "PENDING",
+      "status": "DONE",
       "notes": "Make sure to import SqliteSaver from langgraph.checkpoint.sqlite. MemorySaver can be used in unit tests to avoid disk I/O."
     },
     {
@@ -82,26 +82,26 @@
         {
           "id": "T-1",
           "description": "Import the compiled child_graph into src/graph.py.",
-          "completed": false
+          "completed": true
         },
         {
           "id": "T-2",
           "description": "Replace dummy_process_job in the ParentGraph builder with builder.add_node('child_graph', child_graph).",
-          "completed": false
+          "completed": true
         },
         {
           "id": "T-3",
           "description": "Update map_to_job_processor to use Send('child_graph', child_state) instead of Send('process_job', child_state).",
-          "completed": false
+          "completed": true
         },
         {
           "id": "T-4",
           "description": "Write/update integration test to verify the Parent graph correctly dispatches to the Child graph stubs without errors.",
-          "completed": false
+          "completed": true
         }
       ],
       "priority": 3,
-      "status": "PENDING",
+      "status": "DONE",
       "notes": "Verify that LangGraph's Send API properly executes a compiled subgraph as a node."
     }
   ]

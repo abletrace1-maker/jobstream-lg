@@ -59,12 +59,12 @@ def test_map_to_job_processor_with_matching_category(dummy_base_resume):
 
     assert len(sends) == 2
     assert all(isinstance(send, Send) for send in sends)
-    assert sends[0].node == "process_job"
+    assert sends[0].node == "child_graph"
     assert sends[0].arg["job_details"].job_id == "job-1"
     assert sends[0].arg["base_resume"] == dummy_base_resume
     assert sends[0].arg["status"] == JobStatus.EVALUATING
 
-    assert sends[1].node == "process_job"
+    assert sends[1].node == "child_graph"
     assert sends[1].arg["job_details"].job_id == "job-2"
     assert sends[1].arg["base_resume"] == dummy_base_resume
 
@@ -94,7 +94,7 @@ def test_map_to_job_processor_fallback(dummy_base_resume):
     sends = map_to_job_processor(state)
 
     assert len(sends) == 1
-    assert sends[0].node == "process_job"
+    assert sends[0].node == "child_graph"
     assert sends[0].arg["base_resume"] == dummy_base_resume
 
 def test_map_to_job_processor_no_resumes():
@@ -129,7 +129,7 @@ def test_parent_graph_compiles_and_has_correct_nodes():
     # Check if our custom nodes are registered
     assert "load_config_and_resume" in nodes
     assert "job_ingestion" in nodes
-    assert "process_job" in nodes
+    assert "child_graph" in nodes
 
 def test_parent_graph_run(dummy_base_resume):
     # Quick execution test of the parent graph structure
@@ -161,3 +161,38 @@ def test_parent_graph_run(dummy_base_resume):
     # Because process_job is a dummy, it doesn't change anything in parent state directly,
     # but let's just make sure it runs without error.
     assert "scraped_jobs" in result
+
+def test_parent_to_child_dispatch(dummy_base_resume):
+
+    import os
+    import json
+    os.makedirs("data/json_resumes", exist_ok=True)
+    with open("data/json_resumes/software_engineering.json", "w") as f:
+        json.dump(dummy_base_resume.model_dump(), f)
+    """Verify that Parent Graph dispatches jobs to Child Graph."""
+    job1 = JobDetailsSchema(
+        job_title="Software Engineer",
+        company="Tech Corp",
+        location="Remote",
+        job_id="job-integration-1",
+        category="software_engineering",
+        requirements=["Python"],
+        responsibilities=["Code"],
+        raw_text="Job posting text"
+    )
+    
+    state = ParentGraphState(
+        base_resumes={"software_engineering": dummy_base_resume},
+        config={"data_dir": "data"},
+        prompts={},
+        pending_jobs=[],
+        scraped_jobs=[job1],
+        failed_jobs=[]
+    )
+    
+    config = {"configurable": {"thread_id": "integration-test-1"}}
+    
+    events = list(parent_graph.stream(state, config=config, stream_mode="updates"))
+    
+    # Check that events from child_graph were processed
+    assert any("__interrupt__" in event for event in events)
