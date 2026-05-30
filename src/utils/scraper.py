@@ -9,6 +9,11 @@ class ScraperError(Exception):
     """Custom exception for scraper errors."""
     pass
 
+
+def create_driver():
+    return uc.Chrome()
+
+
 def get_delay_from_config(config_path):
     try:
         with open(config_path, 'r', encoding='utf-8') as f:

@@ -1,91 +1,210 @@
 {
   "project": "JobStream Agent",
   "epicId": "E-02",
-  "featureId": "F-04",
-  "featureName": "Integration of Existing Stealth Scraper and HTML Parser",
-  "description": "Integrate and adapt the existing stealth_page_fetch.py script for use within the Job Ingestion Node. Develop a targeted HTML parser based on parsed_data_map.md to extract key job details from the scraped content before LLM processing.",
+  "featureId": "F-05",
+  "featureName": "Job Ingestion Node (URL & Text Handling)",
+  "description": "Implement the unified JobIngestionNode that processes pending job tracker entries from URL and local file sources, normalizes each source into parse-ready text, converts that text into strict JobDetailsSchema objects, generates canonical job IDs when needed, and records ingestion failures without blocking the rest of the batch.",
   "status": "DONE",
   "userStories": [
     {
       "id": "US-001",
-      "title": "Integrate Existing Stealth Scraper Utility",
-      "description": "As a system coordinator, I want to integrate the existing `stealth_page_fetch.py` script into the project so that it can be called by the Job Ingestion Node to retrieve and clean job page content.",
+      "title": "Normalize URL and File Job Sources for Ingestion",
+      "description": "As a strategic job seeker, I want the system to ingest job postings from either URLs or local files so that I can process applications even when a job board blocks direct scraping.",
       "acceptanceCriteria": [
-        "Scenario: Successfully fetching and cleaning HTML using the existing script",
-        "Given a valid job URL",
-        "When the integrated scraper utility is called from the Job Ingestion Node",
-        "Then it executes the `stealth_page_fetch.py` logic, returning cleaned markdown content",
-        "Scenario: Handling script execution errors",
-        "Given the underlying script fails (e.g., chromedriver issue, timeout)",
-        "When the scraper utility is called",
-        "Then it catches the exception and raises a standardized `ScraperError` that the ingestion node can handle"
+        "Scenario: URL source is converted into normalized job text",
+        "Given a pending job tracker entry with source_type set to url and a valid source URL",
+        "When JobIngestionNode processes the entry",
+        "Then it calls the existing stealth scraper utility and HTML parser to produce normalized job text for downstream parsing",
+        "Scenario: File source is converted into normalized job text",
+        "Given a pending job tracker entry with source_type set to file and a valid local text or HTML file path",
+        "When JobIngestionNode processes the entry",
+        "Then it reads the file contents and normalizes them into parse-ready job text using the existing extraction path where applicable",
+        "Scenario: Existing scraped jobs are preserved",
+        "Given ParentGraphState already contains scraped_jobs",
+        "When JobIngestionNode is invoked again",
+        "Then it returns the existing scraped_jobs without duplicating or reprocessing pending jobs",
+        "Relevant pytest coverage passes"
       ],
       "tasks": [
         {
           "id": "T-1",
-          "description": "Move the logic from `stealth_page_fetch.py` into a reusable function or class within a new `src/utils/scraper.py` module.",
+          "description": "Review `src/nodes/parent_nodes.py` and split source loading/normalization into small helper functions without changing the public `job_ingestion` entry point.",
           "completed": true
         },
         {
           "id": "T-2",
-          "description": "Add `undetected-chromedriver` and its dependencies (`beautifulsoup4`, `markdownify`) to the `pyproject.toml` file.",
+          "description": "Ensure `source_type == \"url\"` uses the existing `src.utils.scraper.fetch_url_stealth` utility and always quits the webdriver after the fetch attempt.",
           "completed": true
         },
         {
           "id": "T-3",
-          "description": "Implement robust error handling within the scraper utility to wrap potential exceptions in a custom `ScraperError`.",
+          "description": "Ensure `source_type == \"file\"` reads the local file path using UTF-8 and supports both raw text and HTML-like content without requiring network access.",
           "completed": true
         },
         {
           "id": "T-4",
-          "description": "Write integration tests for the scraper utility, mocking the webdriver to test success and failure cases without actual web requests.",
+          "description": "Apply `src.utils.html_parser.extract_job_details` consistently so both URL and file inputs produce clean parse-ready text.",
+          "completed": true
+        },
+        {
+          "id": "T-5",
+          "description": "Update or add unit tests in `tests/test_parent_nodes.py` for URL, file, and idempotent scraped_jobs behavior.",
           "completed": true
         }
       ],
       "priority": 1,
       "status": "DONE",
-      "notes": "The scraper will be a more complex dependency than a simple HTTP client, so error handling is critical."
+      "notes": "This story should preserve the F-04 scraper/parser integration rather than replacing it. Keep external browser and network behavior mocked in tests."
     },
     {
       "id": "US-002",
-      "title": "Implement Targeted Data Extraction Using HTML Mapping",
-      "description": "As a system coordinator, I want a utility that uses the `parsed_data_map.md` guidelines to extract key data sections from the raw HTML, so that a cleaner, more focused context can be sent to the LLM for final parsing.",
+      "title": "Parse Normalized Job Text into JobDetailsSchema",
+      "description": "As a strategic job seeker, I want each ingested posting converted into the strict JobDetailsSchema so that downstream fit evaluation can rely on consistent structured data regardless of the original source.",
       "acceptanceCriteria": [
-        "Scenario: Extracting key job sections from HTML",
-        "Given raw HTML content from a job page",
-        "When the HTML parsing utility is called",
-        "Then it uses BeautifulSoup and the selectors from `parsed_data_map.md` to extract the Job Title, Company Info, Core Description, and Job Criteria",
-        "And it returns a simplified, concatenated text block containing only these essential sections",
-        "Scenario: Handling HTML with missing sections",
-        "Given raw HTML that does not contain one of the mapped sections (e.g., no salary info)",
-        "When the HTML parsing utility is called",
-        "Then it gracefully skips the missing section and returns the content it did find without errors"
+        "Scenario: Normalized text is parsed into strict job details",
+        "Given normalized job posting text and the original JobTrackerEntry metadata",
+        "When JobIngestionNode parses the posting",
+        "Then it returns a JobDetailsSchema containing job_title, company, location, job_id, category, salary_range, requirements, nice_to_haves, responsibilities, and raw_text",
+        "Scenario: Missing optional fields do not break ingestion",
+        "Given normalized job posting text that does not include salary or nice-to-have requirements",
+        "When the posting is parsed",
+        "Then salary_range may be null, nice_to_haves may be empty, and required schema fields are still populated safely",
+        "Scenario: Parsed output is schema validated",
+        "Given parser output with malformed field types",
+        "When JobIngestionNode attempts to construct JobDetailsSchema",
+        "Then the job is not added to scraped_jobs and is recorded in failed_jobs",
+        "Relevant pytest coverage passes"
       ],
       "tasks": [
         {
           "id": "T-1",
-          "description": "Create a new module `src/utils/html_parser.py`.",
+          "description": "Create a focused parsing helper in the parent ingestion module, or a new utility module if needed, that accepts normalized text plus JobTrackerEntry and returns JobDetailsSchema.",
           "completed": true
         },
         {
           "id": "T-2",
-          "description": "Implement an `extract_job_details` function that takes raw HTML and returns a string containing only the text from the targeted selectors.",
+          "description": "Implement deterministic field population from JobTrackerEntry for job_id, category, title fallback, and company fallback before invoking any LLM-specific parsing path.",
           "completed": true
         },
         {
           "id": "T-3",
-          "description": "Integrate the `html_parser` into the `JobIngestionNode` to be called after the scraper runs but before the LLM is invoked.",
+          "description": "Add an injectable parsing boundary so tests can mock structured LLM parsing without making real OpenAI calls.",
           "completed": true
         },
         {
           "id": "T-4",
-          "description": "Write unit tests for the parser using sample HTML files to verify that it correctly extracts data and handles missing elements.",
+          "description": "Validate final parsed results by constructing `JobDetailsSchema` and ensure `raw_text` always preserves the normalized text used for parsing.",
+          "completed": true
+        },
+        {
+          "id": "T-5",
+          "description": "Add tests covering successful structured parsing, missing optional fields, malformed parser output, and no-network mocked parsing behavior.",
           "completed": true
         }
       ],
       "priority": 2,
       "status": "DONE",
-      "notes": "This pre-processing step should reduce noise and improve the reliability of the final LLM-based parsing into the JobDetailsSchema."
+      "notes": "Do not perform real LLM/API calls in unit tests. If an LLM dependency is introduced, use the project's `uv` workflow and keep the parser boundary mockable."
+    },
+    {
+      "id": "US-003",
+      "title": "Generate Canonical Job IDs During Ingestion",
+      "description": "As a strategic job seeker, I want each parsed job to receive a consistent canonical job ID so that generated outputs, checkpoints, and tracker entries can be traced back to the correct application.",
+      "acceptanceCriteria": [
+        "Scenario: Missing or placeholder job ID is generated canonically",
+        "Given a pending job whose job_id is empty, missing, or a placeholder value",
+        "When JobIngestionNode successfully identifies the company name during ingestion",
+        "Then it assigns a job_id using the MM-DD_n_company_name format with a stable batch index",
+        "Scenario: Existing valid job ID is preserved",
+        "Given a pending job with an existing valid job_id",
+        "When JobIngestionNode processes the job",
+        "Then the existing job_id is preserved in the resulting JobDetailsSchema",
+        "Scenario: Company name is sanitized for file-safe IDs",
+        "Given a company name containing spaces or punctuation",
+        "When a canonical job_id is generated",
+        "Then spaces are converted to hyphen separators and unsafe filename characters are removed",
+        "Relevant pytest coverage passes"
+      ],
+      "tasks": [
+        {
+          "id": "T-1",
+          "description": "Implement a helper that determines whether an existing job_id is valid or should be regenerated.",
+          "completed": true
+        },
+        {
+          "id": "T-2",
+          "description": "Implement canonical ID generation using the current date, one-based batch index, and sanitized company name in the `MM-DD_n_company_name` format.",
+          "completed": true
+        },
+        {
+          "id": "T-3",
+          "description": "Ensure company fallback order is parsed company, tracker company, then a safe unknown-company placeholder if neither is available.",
+          "completed": true
+        },
+        {
+          "id": "T-4",
+          "description": "Thread canonical job_id generation into JobDetailsSchema creation without mutating unrelated tracker fields.",
+          "completed": true
+        },
+        {
+          "id": "T-5",
+          "description": "Add tests for valid ID preservation, placeholder replacement, date/index formatting, and company-name sanitization.",
+          "completed": true
+        }
+      ],
+      "priority": 3,
+      "status": "DONE",
+      "notes": "The TRD requires canonical IDs for downstream output naming. Keep generated IDs deterministic in tests by patching the date source."
+    },
+    {
+      "id": "US-004",
+      "title": "Record Ingestion Failures Without Blocking the Batch",
+      "description": "As a strategic job seeker, I want failed or blocked job postings to be isolated from successful postings so that one bad source does not stop the rest of my application batch from being processed.",
+      "acceptanceCriteria": [
+        "Scenario: Scraper failure is recorded as a failed job",
+        "Given a URL job source that raises a scraper exception or anti-bot failure",
+        "When JobIngestionNode processes the batch",
+        "Then the job is appended to failed_jobs and remaining pending jobs continue processing",
+        "Scenario: Unsupported source type is recorded as a failed job",
+        "Given a pending job with an unsupported source_type",
+        "When JobIngestionNode processes the batch",
+        "Then the job is appended to failed_jobs and no JobDetailsSchema is emitted for it",
+        "Scenario: Missing local file is recorded as a failed job",
+        "Given a file source path that does not exist",
+        "When JobIngestionNode attempts to read it",
+        "Then the job is appended to failed_jobs and the batch continues",
+        "Relevant pytest coverage passes"
+      ],
+      "tasks": [
+        {
+          "id": "T-1",
+          "description": "Make JobIngestionNode catch source-loading, normalization, parsing, and schema-validation failures per job rather than around the entire batch.",
+          "completed": true
+        },
+        {
+          "id": "T-2",
+          "description": "Ensure failed jobs are returned in `failed_jobs` while successful jobs in the same batch still appear in `scraped_jobs`.",
+          "completed": true
+        },
+        {
+          "id": "T-3",
+          "description": "When appropriate, set failed URL job status to `MANUAL_INPUT_REQUIRED` on the failed JobTrackerEntry copy so the future UI can request pasted raw text.",
+          "completed": true
+        },
+        {
+          "id": "T-4",
+          "description": "Avoid infinite retries or repeated browser creation after a single source has failed in the current invocation.",
+          "completed": true
+        },
+        {
+          "id": "T-5",
+          "description": "Add tests for scraper exceptions, unsupported source types, missing files, and mixed success/failure batches.",
+          "completed": true
+        }
+      ],
+      "priority": 4,
+      "status": "DONE",
+      "notes": "This story prepares the later Streamlit HITL fallback while keeping F-05 focused on ingestion state outputs only."
     }
   ]
 }

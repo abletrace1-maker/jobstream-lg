@@ -29,6 +29,7 @@ Because this project uses Spec-Driven Development, you will be acting in one of 
 ## 3. Environment & Tooling Constraints
 - **Package Manager:** This project strictly uses **`uv`**. Do not use `pip`, `poetry`, or `conda`.
 - **Execution:** Always use `uv run` when executing scripts, tests, or LangGraph flows to ensure you are using the project's local `.venv` (e.g., `uv run pytest`).
+- **Validation:** After code changes, run `uv run pytest` and `uv run ruff check /home/bobbysaini/workspace/langgraph-agents/jobstream-langgraph` before marking a user story complete.
 
 ## 4. MCP Documentation Server (LangGraph / Deep Agents)
 When acting as the Coding Agent, you have access to an MCP server providing LangChain, LangGraph, and Deep Agents documentation.
