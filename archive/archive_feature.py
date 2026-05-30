@@ -4,7 +4,7 @@ import os
 import sys
 
 def archive_active_feature():
-    source_file = 'planning/trackers/active_feature-test.json'
+    source_file = 'planning/trackers/active_feature.json'
     archive_dir = 'archive/feature-trackers'
     
     if not os.path.exists(source_file):
