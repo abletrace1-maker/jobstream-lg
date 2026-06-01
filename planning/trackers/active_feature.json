@@ -1,0 +1,49 @@
+{
+  "project": "JobStream Agent",
+  "epicId": "E-05",
+  "featureId": "F-15",
+  "featureName": "Cover Letter Generator Node",
+  "description": "A node in the Child Graph that generates a targeted cover letter markdown based on the tailored resume and job details.",
+  "status": "IN_PROGRESS",
+  "userStories": [
+    {
+      "id": "US-015",
+      "title": "Cover Letter Generation Logic",
+      "description": "As a job seeker, I want the system to generate a tailored cover letter using the job details and my updated resume, so that I have a highly relevant cover letter ready for PDF compilation.",
+      "acceptanceCriteria": [
+        "Scenario: Generating a cover letter from job details and resume",
+        "Given the system is in the Child Graph processing pipeline",
+        "and Given the state has tailored_resume (or base_resume), job_details, and strategy_markdown",
+        "When the CoverLetterGeneratorNode is executed",
+        "Then it uses gpt-4o to generate a professional cover letter following the directives (targeting, alignment, tone)",
+        "and Then it updates the cover_letter_markdown state key",
+        "and Then typecheck passes"
+      ],
+      "tasks": [
+        {
+          "id": "T-1",
+          "description": "Define the system prompt for cover letter generation incorporating the key directives (Targeting, Alignment, Tone) as outlined in prompt_details.MD.",
+          "completed": false
+        },
+        {
+          "id": "T-2",
+          "description": "Implement the CoverLetterGeneratorNode logic to call the LLM (gpt-4o) and generate the markdown.",
+          "completed": false
+        },
+        {
+          "id": "T-3",
+          "description": "Update the Child Graph to include CoverLetterGeneratorNode in the workflow.",
+          "completed": false
+        },
+        {
+          "id": "T-4",
+          "description": "Write a unit test for CoverLetterGeneratorNode mocking the LLM call to verify state updates.",
+          "completed": false
+        }
+      ],
+      "priority": 1,
+      "status": "PENDING",
+      "notes": "Follow prompt details from prompt_details.MD for Cover Letter Generator Node."
+    }
+  ]
+}
