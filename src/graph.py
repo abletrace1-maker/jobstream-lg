@@ -3,7 +3,7 @@ from langgraph.types import Send
 from langgraph.graph import StateGraph, START, END
 
 from src.state import ParentGraphState, ChildGraphState, JobStatus
-from src.nodes.parent_nodes import load_config_and_resume
+from src.nodes.parent_nodes import job_ingestion, load_config_and_resume
 from src.child_graph import child_graph
 
 def map_to_job_processor(state: ParentGraphState) -> List[Send]:
@@ -54,24 +54,12 @@ def map_to_job_processor(state: ParentGraphState) -> List[Send]:
     return sends
 
 
-def dummy_job_ingestion(state: ParentGraphState) -> Dict[str, Any]:
-    """
-    Stub job_ingestion node to move pending_jobs to scraped_jobs for testing.
-    """
-    scraped_jobs = state.get("scraped_jobs", [])
-    
-    # Normally this would scrape jobs, but for now we just convert them conceptually
-    # Since we need actual scraped jobs matching JobDetailsSchema, let's just assume 
-    # scraped_jobs is populated or we populate it manually in tests.
-    # Return empty dict since we'll inject scraped_jobs via state in tests for now.
-    return {"scraped_jobs": scraped_jobs}
-
 # Build the Parent Graph
 builder = StateGraph(ParentGraphState)
 
 # Add nodes
 builder.add_node("load_config_and_resume", load_config_and_resume)
-builder.add_node("job_ingestion", dummy_job_ingestion)
+builder.add_node("job_ingestion", job_ingestion)
 builder.add_node("child_graph", child_graph)
 
 # Add edges

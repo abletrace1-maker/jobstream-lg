@@ -1,3 +1,4 @@
+from unittest import mock
 import pytest
 from langgraph.types import Send
 
@@ -132,35 +133,36 @@ def test_parent_graph_compiles_and_has_correct_nodes():
     assert "child_graph" in nodes
 
 def test_parent_graph_run(dummy_base_resume):
-    # Quick execution test of the parent graph structure
-    job1 = JobDetailsSchema(
-        job_title="Software Engineer",
-        company="Tech Corp",
-        location="Remote",
-        job_id="job-1",
-        category="software_engineering",
-        requirements=["Python"],
-        responsibilities=["Code"],
-        raw_text="Job posting text"
-    )
-    
-    # We initialize state with some scraped jobs
-    initial_state = {
-        "base_resumes": {"software_engineering": dummy_base_resume},
-        "config": {},
-        "prompts": {},
-        "pending_jobs": [],
-        "scraped_jobs": [job1],
-        "failed_jobs": []
-    }
-    
-    # Invoke the graph
-    # process_job will be hit due to the map_to_job_processor
-    result = parent_graph.invoke(initial_state)
-    
-    # Because process_job is a dummy, it doesn't change anything in parent state directly,
-    # but let's just make sure it runs without error.
-    assert "scraped_jobs" in result
+    with mock.patch("src.nodes.evaluate_fit_node.ChatOpenAI"):
+        # Quick execution test of the parent graph structure
+        job1 = JobDetailsSchema(
+            job_title="Software Engineer",
+            company="Tech Corp",
+            location="Remote",
+            job_id="job-1",
+            category="software_engineering",
+            requirements=["Python"],
+            responsibilities=["Code"],
+            raw_text="Job posting text"
+        )
+        
+        # We initialize state with some scraped jobs
+        initial_state = {
+            "base_resumes": {"software_engineering": dummy_base_resume},
+            "config": {},
+            "prompts": {},
+            "pending_jobs": [],
+            "scraped_jobs": [job1],
+            "failed_jobs": []
+        }
+        
+        # Invoke the graph
+        # process_job will be hit due to the map_to_job_processor
+        result = parent_graph.invoke(initial_state)
+        
+        # Because process_job is a dummy, it doesn't change anything in parent state directly,
+        # but let's just make sure it runs without error.
+        assert "scraped_jobs" in result
 
 def test_parent_to_child_dispatch(dummy_base_resume):
 
@@ -192,7 +194,22 @@ def test_parent_to_child_dispatch(dummy_base_resume):
     
     config = {"configurable": {"thread_id": "integration-test-1"}}
     
-    events = list(parent_graph.stream(state, config=config, stream_mode="updates"))
-    
-    # Check that events from child_graph were processed
-    assert any("__interrupt__" in event for event in events)
+    with mock.patch("src.nodes.evaluate_fit_node.ChatOpenAI") as mock_chat:
+        mock_instance = mock.MagicMock()
+        mock_chat.return_value = mock_instance
+        
+        mock_structured = mock.MagicMock()
+        mock_instance.with_structured_output.return_value = mock_structured
+        
+        from src.schemas import EvaluateFitOutput, ClarificationQuestion
+        mock_response = EvaluateFitOutput(
+            questions=[ClarificationQuestion(id="1", type="text", question="Q", options=[])]
+        )
+        
+        mock_structured.return_value = mock_response
+        mock_structured.invoke.return_value = mock_response
+
+        events = list(parent_graph.stream(state, config=config, stream_mode="updates"))
+        
+        # Check that events from child_graph were processed
+        assert any("__interrupt__" in event for event in events)

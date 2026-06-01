@@ -1,0 +1,91 @@
+{
+  "project": "JobStream Agent",
+  "epicId": "E-02",
+  "featureId": "F-04",
+  "featureName": "Integration of Existing Stealth Scraper and HTML Parser",
+  "description": "Integrate and adapt the existing stealth_page_fetch.py script for use within the Job Ingestion Node. Develop a targeted HTML parser based on parsed_data_map.md to extract key job details from the scraped content before LLM processing.",
+  "status": "DONE",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Integrate Existing Stealth Scraper Utility",
+      "description": "As a system coordinator, I want to integrate the existing `stealth_page_fetch.py` script into the project so that it can be called by the Job Ingestion Node to retrieve and clean job page content.",
+      "acceptanceCriteria": [
+        "Scenario: Successfully fetching and cleaning HTML using the existing script",
+        "Given a valid job URL",
+        "When the integrated scraper utility is called from the Job Ingestion Node",
+        "Then it executes the `stealth_page_fetch.py` logic, returning cleaned markdown content",
+        "Scenario: Handling script execution errors",
+        "Given the underlying script fails (e.g., chromedriver issue, timeout)",
+        "When the scraper utility is called",
+        "Then it catches the exception and raises a standardized `ScraperError` that the ingestion node can handle"
+      ],
+      "tasks": [
+        {
+          "id": "T-1",
+          "description": "Move the logic from `stealth_page_fetch.py` into a reusable function or class within a new `src/utils/scraper.py` module.",
+          "completed": true
+        },
+        {
+          "id": "T-2",
+          "description": "Add `undetected-chromedriver` and its dependencies (`beautifulsoup4`, `markdownify`) to the `pyproject.toml` file.",
+          "completed": true
+        },
+        {
+          "id": "T-3",
+          "description": "Implement robust error handling within the scraper utility to wrap potential exceptions in a custom `ScraperError`.",
+          "completed": true
+        },
+        {
+          "id": "T-4",
+          "description": "Write integration tests for the scraper utility, mocking the webdriver to test success and failure cases without actual web requests.",
+          "completed": true
+        }
+      ],
+      "priority": 1,
+      "status": "DONE",
+      "notes": "The scraper will be a more complex dependency than a simple HTTP client, so error handling is critical."
+    },
+    {
+      "id": "US-002",
+      "title": "Implement Targeted Data Extraction Using HTML Mapping",
+      "description": "As a system coordinator, I want a utility that uses the `parsed_data_map.md` guidelines to extract key data sections from the raw HTML, so that a cleaner, more focused context can be sent to the LLM for final parsing.",
+      "acceptanceCriteria": [
+        "Scenario: Extracting key job sections from HTML",
+        "Given raw HTML content from a job page",
+        "When the HTML parsing utility is called",
+        "Then it uses BeautifulSoup and the selectors from `parsed_data_map.md` to extract the Job Title, Company Info, Core Description, and Job Criteria",
+        "And it returns a simplified, concatenated text block containing only these essential sections",
+        "Scenario: Handling HTML with missing sections",
+        "Given raw HTML that does not contain one of the mapped sections (e.g., no salary info)",
+        "When the HTML parsing utility is called",
+        "Then it gracefully skips the missing section and returns the content it did find without errors"
+      ],
+      "tasks": [
+        {
+          "id": "T-1",
+          "description": "Create a new module `src/utils/html_parser.py`.",
+          "completed": true
+        },
+        {
+          "id": "T-2",
+          "description": "Implement an `extract_job_details` function that takes raw HTML and returns a string containing only the text from the targeted selectors.",
+          "completed": true
+        },
+        {
+          "id": "T-3",
+          "description": "Integrate the `html_parser` into the `JobIngestionNode` to be called after the scraper runs but before the LLM is invoked.",
+          "completed": true
+        },
+        {
+          "id": "T-4",
+          "description": "Write unit tests for the parser using sample HTML files to verify that it correctly extracts data and handles missing elements.",
+          "completed": true
+        }
+      ],
+      "priority": 2,
+      "status": "DONE",
+      "notes": "This pre-processing step should reduce noise and improve the reliability of the final LLM-based parsing into the JobDetailsSchema."
+    }
+  ]
+}

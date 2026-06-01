@@ -24,11 +24,12 @@ Because this project uses Spec-Driven Development, you will be acting in one of 
   - **Always read the TRD:** It contains the exact JSON schemas, graph state definitions, and system architecture you must adhere to.
   - **Additional Context/Docs:** The folder ./agent-design-documents contains additional documents with that were used to create the TRD and PRD. The file prompt_details.MD has guidance on how to create the prompts once you are that stage of development. Review these documents when you require.
   - **Do NOT read every feature/story document:** To preserve your token context, only read the specification file containing your *currently assigned User Story and Tasks*. Reading future or unrelated epics will cause hallucinations and context bloat.
-- **Execution:** Follow the 3-7 tasks assigned to you in a single context session. Do not start working on the next User Story until the current one is tested and committed.
+- **Execution:** Follow the 3-7 tasks assigned to you in a single context session. After completing the tasks make sure the current user story is tested and committed. Indicate the user story is complete, do not start the next user story unless the user asks you to after the current one is complete.
 
 ## 3. Environment & Tooling Constraints
 - **Package Manager:** This project strictly uses **`uv`**. Do not use `pip`, `poetry`, or `conda`.
 - **Execution:** Always use `uv run` when executing scripts, tests, or LangGraph flows to ensure you are using the project's local `.venv` (e.g., `uv run pytest`).
+- **Validation:** After code changes, run `uv run pytest` and `uv run ruff check /home/bobbysaini/workspace/langgraph-agents/jobstream-langgraph` before marking a user story complete.
 
 ## 4. MCP Documentation Server (LangGraph / Deep Agents)
 When acting as the Coding Agent, you have access to an MCP server providing LangChain, LangGraph, and Deep Agents documentation.
