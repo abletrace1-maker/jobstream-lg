@@ -2,6 +2,7 @@ from typing import Any, Dict
 from src.state import ChildGraphState
 from src.nodes.evaluate_fit_node import evaluate_fit as evaluate_fit
 from src.nodes.strategy_generator_node import strategy_generator as strategy_generator
+from src.nodes.revise_strategy_node import revise_strategy as revise_strategy
 
 def clarification(state: ChildGraphState) -> Dict[str, Any]:
     """Stub for handling human-in-the-loop clarification."""

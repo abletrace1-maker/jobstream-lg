@@ -9,6 +9,7 @@ from src.nodes.child_nodes import (
     clarification,
     strategy_generator,
     human_review,
+    revise_strategy,
     apply_changes,
     cover_letter,
     pdf_compiler,
@@ -22,6 +23,7 @@ child_builder.add_node("evaluate_fit", evaluate_fit)
 child_builder.add_node("clarification", clarification)
 child_builder.add_node("strategy_generator", strategy_generator)
 child_builder.add_node("human_review", human_review)
+child_builder.add_node("revise_strategy", revise_strategy)
 child_builder.add_node("apply_changes", apply_changes)
 child_builder.add_node("cover_letter", cover_letter)
 child_builder.add_node("pdf_compiler", pdf_compiler)
@@ -31,12 +33,18 @@ def route_after_evaluate(state: ChildGraphState) -> str:
         return "clarification"
     return "strategy_generator"
 
+def route_after_human_review(state: ChildGraphState) -> str:
+    if state.get("user_feedback") or state.get("status") == "REJECTED":
+        return "revise_strategy"
+    return "apply_changes"
+
 # Define flow with conditional routing
 child_builder.add_edge(START, "evaluate_fit")
 child_builder.add_conditional_edges("evaluate_fit", route_after_evaluate)
 child_builder.add_edge("clarification", "strategy_generator")
 child_builder.add_edge("strategy_generator", "human_review")
-child_builder.add_edge("human_review", "apply_changes")
+child_builder.add_conditional_edges("human_review", route_after_human_review)
+child_builder.add_edge("revise_strategy", "human_review")
 child_builder.add_edge("apply_changes", "cover_letter")
 child_builder.add_edge("cover_letter", "pdf_compiler")
 child_builder.add_edge("pdf_compiler", END)

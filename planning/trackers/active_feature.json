@@ -1,0 +1,47 @@
+{
+  "project": "JobStream Agent",
+  "epicId": "E-03",
+  "featureId": "F-09",
+  "featureName": "Revise Strategy Node",
+  "description": "Processes user_feedback to update strategy_markdown and resume_diffs, looping back to HumanReviewNode.",
+  "status": "IN_PROGRESS",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Incorporate user feedback into strategy and resume diffs",
+      "description": "As an applicant, I want the AI to incorporate my feedback to generate an updated strategy and resume diffs, so that the tailored resume accurately reflects my preferences before generation.",
+      "acceptanceCriteria": [
+        "Given the child graph is at the human_review node and the user has provided user_feedback",
+        "When the graph continues execution",
+        "Then the routing logic routes to the revise_strategy node",
+        "Then the revise_strategy node prompts the LLM with the feedback and previous strategy to generate a new strategy_markdown and resume_diffs",
+        "Then the child graph loops back to the human_review node to await approval again"
+      ],
+      "tasks": [
+        {
+          "id": "T-1",
+          "description": "Define the prompt for the Revise Strategy Node in templates.MD or prompts.yaml.",
+          "completed": true
+        },
+        {
+          "id": "T-2",
+          "description": "Implement the revise_strategy node logic using the LLM with structured output matching StrategyGeneratorNode.",
+          "completed": true
+        },
+        {
+          "id": "T-3",
+          "description": "Add revise_strategy to child_graph.py and implement the conditional routing from human_review based on status or user_feedback.",
+          "completed": true
+        },
+        {
+          "id": "T-4",
+          "description": "Write a pytest to verify that the revise_strategy node correctly updates the strategy and diffs based on feedback.",
+          "completed": true
+        }
+      ],
+      "priority": 1,
+      "status": "DONE",
+      "notes": "Ensure that the Revise Strategy Node uses gpt-4o as it requires heavy reasoning, similar to the original Strategy Node."
+    }
+  ]
+}
