@@ -1,0 +1,70 @@
+{
+  "project": "JobStream Agent",
+  "epicId": "E-03",
+  "featureId": "F-07",
+  "featureName": "Evaluate Fit Node & Question Generation",
+  "description": "Evaluate fit between base resume and job description, and generate structured clarification questions.",
+  "status": "IN_PROGRESS",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Evaluate Fit Node Implementation",
+      "description": "As a job seeker, I want the system to use GPT-4o to evaluate my base resume against the job details, so that it can identify missing context and determine if clarification questions are needed.",
+      "acceptanceCriteria": [
+        "Scenario: System successfully compares base resume and job description",
+        "Given the Child Sub-Graph has a populated base_resume and job_details",
+        "When the EvaluateFitNode is executed",
+        "Then it invokes the LLM (gpt-4o) with a prompt containing both the resume and job description to evaluate fit"
+      ],
+      "tasks": [
+        {"id": "T-1", "description": "Define EvaluateFit prompt in prompts.yaml or node file", "completed": true},
+        {"id": "T-2", "description": "Create evaluate_fit_node.py and initialize the GPT-4o LLM call", "completed": true},
+        {"id": "T-3", "description": "Write a unit test to verify the node successfully accepts GraphState and calls the LLM", "completed": true}
+      ],
+      "priority": 1,
+      "status": "DONE",
+      "notes": "Uses gpt-4o as specified in the TRD for heavy reasoning."
+    },
+    {
+      "id": "US-002",
+      "title": "Enforce Clarification Question Schema",
+      "description": "As a job seeker, I want the generated clarification questions to strictly follow the ClarificationQuestion schema, so that the Streamlit UI can render them flawlessly and safely.",
+      "acceptanceCriteria": [
+        "Scenario: LLM outputs strictly typed clarification questions",
+        "Given the EvaluateFitNode identifies missing information",
+        "When it generates questions",
+        "Then the output strictly conforms to the ClarificationQuestion Pydantic schema",
+        "and Then if the question type is multiple_choice, the options array MUST include the string 'Let LLM decide'"
+      ],
+      "tasks": [
+        {"id": "T-1", "description": "Implement ClarificationQuestion schema validation (including the 'Let LLM decide' constraint)", "completed": false},
+        {"id": "T-2", "description": "Bind the schema to the EvaluateFitNode LLM using with_structured_output", "completed": false},
+        {"id": "T-3", "description": "Write unit tests for schema parsing and the 'Let LLM decide' constraint", "completed": false}
+      ],
+      "priority": 2,
+      "status": "PENDING",
+      "notes": "Ensures the UI doesn't crash on malformed LLM questions."
+    },
+    {
+      "id": "US-003",
+      "title": "Update State & Handle Routing",
+      "description": "As a system orchestrator, I want the EvaluateFitNode to accurately update the ChildGraphState and set the status, so that the workflow either pauses for HITL clarification or proceeds to strategy generation.",
+      "acceptanceCriteria": [
+        "Scenario: Node correctly updates graph state based on findings",
+        "Given the evaluation finishes",
+        "When clarification questions are generated",
+        "Then the node updates the state dictionary with the questions and sets status to NEEDS_CLARIFICATION",
+        "and When no clarification questions are needed",
+        "Then the node sets status to EVALUATING (or proceeds to next logical status) without adding questions"
+      ],
+      "tasks": [
+        {"id": "T-1", "description": "Update the node logic to return the correct state dictionary (clarification_questions and status)", "completed": false},
+        {"id": "T-2", "description": "Add routing logic to the child graph definition to handle NEEDS_CLARIFICATION interrupts", "completed": false},
+        {"id": "T-3", "description": "Write a unit test verifying state updates based on the presence of clarification questions", "completed": false}
+      ],
+      "priority": 3,
+      "status": "PENDING",
+      "notes": "Critical for LangGraph Checkpointer HITL interrupts."
+    }
+  ]
+}

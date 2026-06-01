@@ -1,9 +1,6 @@
 from typing import Any, Dict
 from src.state import ChildGraphState
-
-def evaluate_fit(state: ChildGraphState) -> Dict[str, Any]:
-    """Stub for evaluating fit between resume and job details."""
-    return {}
+from src.nodes.evaluate_fit_node import evaluate_fit
 
 def clarification(state: ChildGraphState) -> Dict[str, Any]:
     """Stub for handling human-in-the-loop clarification."""
