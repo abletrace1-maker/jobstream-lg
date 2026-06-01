@@ -1,5 +1,7 @@
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from src.nodes import child_nodes
 from src.nodes.strategy_generator_node import strategy_generator
 from src.schemas import BaseResumeSchema, JobDetailsSchema, ResumeDiffSchema, StrategyGeneratorOutput
@@ -41,8 +43,8 @@ def _job() -> JobDetailsSchema:
     )
 
 
-def _state(answers: dict[str, str] | None = None) -> ChildGraphState:
-    return ChildGraphState(
+def _state(answers: dict[str, str] | None = None, config: dict | None = None) -> ChildGraphState:
+    state = ChildGraphState(
         base_resume=_resume(),
         job_details=_job(),
         status=JobStatus.EVALUATING,
@@ -56,14 +58,18 @@ def _state(answers: dict[str, str] | None = None) -> ChildGraphState:
         resume_pdf_path="",
         cover_letter_pdf_path="",
     )
+    if config is not None:
+        state["config"] = config
+    return state
 
 
-def _output() -> StrategyGeneratorOutput:
+def _output(change: dict | None = None) -> StrategyGeneratorOutput:
     return StrategyGeneratorOutput(
         strategy_markdown="## Strategy\n- Align summary to Python APIs.",
         resume_diffs=ResumeDiffSchema(
             changes=[
-                {
+                change
+                or {
                     "action": "replace",
                     "section": "professional_summary",
                     "old_value": "Backend engineer with Python experience.",
@@ -120,6 +126,94 @@ def test_strategy_generator_prompt_handles_missing_clarification_answers():
     prompt_text = mock_structured.invoke.call_args.args[0].to_string()
     assert "No user clarification answers were provided" in prompt_text
     assert updates["status"] == JobStatus.STRATEGY_DRAFTED.value
+
+
+def test_strategy_generator_prompt_includes_resume_constraints_from_config():
+    config = {
+        "resume_constraints": {
+            "allowed_sections_to_alter": ["professional_summary"],
+            "forbidden_sections": ["name", "contact_info"],
+            "rules": ["Only update explicitly allowed sections."],
+        }
+    }
+    with patch("src.nodes.strategy_generator_node.ChatOpenAI") as mock_chat:
+        mock_instance = MagicMock()
+        mock_structured = MagicMock()
+        mock_structured.invoke.return_value = _output()
+        mock_instance.with_structured_output.return_value = mock_structured
+        mock_chat.return_value = mock_instance
+
+        strategy_generator(_state(config=config))
+
+    prompt_text = mock_structured.invoke.call_args.args[0].to_string()
+    assert "allowed_sections_to_alter" in prompt_text
+    assert "forbidden_sections" in prompt_text
+    assert "Only update explicitly allowed sections." in prompt_text
+
+
+def test_strategy_generator_allows_default_highlight_edit_with_matching_old_value():
+    output = _output(
+        {
+            "action": "replace",
+            "section": "professional_experience[0].highlights[0]",
+            "old_value": "Built Python services.",
+            "new_value": "Built Python API services aligned to product needs.",
+            "reason": "Emphasizes API experience for the target role.",
+        }
+    )
+    with patch("src.nodes.strategy_generator_node.ChatOpenAI") as mock_chat:
+        mock_instance = MagicMock()
+        mock_structured = MagicMock()
+        mock_structured.invoke.return_value = output
+        mock_instance.with_structured_output.return_value = mock_structured
+        mock_chat.return_value = mock_instance
+
+        updates = strategy_generator(_state())
+
+    assert updates["resume_diffs"].changes[0].section == "professional_experience[0].highlights[0]"
+    assert updates["status"] == JobStatus.STRATEGY_DRAFTED.value
+
+
+def test_strategy_generator_rejects_forbidden_immutable_edit_without_drafted_status():
+    output = _output(
+        {
+            "action": "replace",
+            "section": "professional_experience[0].company",
+            "old_value": "Tech Corp",
+            "new_value": "Acme",
+            "reason": "Unsafe company edit.",
+        }
+    )
+    with patch("src.nodes.strategy_generator_node.ChatOpenAI") as mock_chat:
+        mock_instance = MagicMock()
+        mock_structured = MagicMock()
+        mock_structured.invoke.return_value = output
+        mock_instance.with_structured_output.return_value = mock_structured
+        mock_chat.return_value = mock_instance
+
+        with pytest.raises(ValueError, match="forbidden section"):
+            strategy_generator(_state())
+
+
+def test_strategy_generator_rejects_mismatched_old_value_without_drafted_status():
+    output = _output(
+        {
+            "action": "replace",
+            "section": "professional_summary",
+            "old_value": "Wrong summary.",
+            "new_value": "Senior Python engineer specializing in API services.",
+            "reason": "Aligns the summary with the target role.",
+        }
+    )
+    with patch("src.nodes.strategy_generator_node.ChatOpenAI") as mock_chat:
+        mock_instance = MagicMock()
+        mock_structured = MagicMock()
+        mock_structured.invoke.return_value = output
+        mock_instance.with_structured_output.return_value = mock_structured
+        mock_chat.return_value = mock_instance
+
+        with pytest.raises(ValueError, match="old_value does not match"):
+            strategy_generator(_state())
 
 
 def test_child_nodes_strategy_generator_delegates_to_implementation():

@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import TypedDict, Dict, List
+from typing import Dict, List, NotRequired, TypedDict
 
 from src.schemas import (
     BaseResumeSchema,
@@ -38,3 +38,4 @@ class ChildGraphState(TypedDict):
     cover_letter_markdown: str
     resume_pdf_path: str
     cover_letter_pdf_path: str
+    config: NotRequired[dict]

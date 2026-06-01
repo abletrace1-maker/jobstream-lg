@@ -4,7 +4,7 @@
   "featureId": "F-08",
   "featureName": "Strategy & JSON Diff Generator Node",
   "description": "Implement the child-graph strategy generator capability that converts a base resume, parsed job details, and optional user clarification answers into a synchronized human-readable strategy markdown document and strict ResumeDiffSchema. The feature must preserve hallucination safeguards by restricting edits to allowed resume sections, keeping immutable fields unchanged, and setting the child graph status to STRATEGY_DRAFTED when a valid strategy is produced.",
-  "status": "IN_PROGRESS",
+  "status": "DONE",
   "userStories": [
     {
       "id": "US-001",
@@ -66,31 +66,31 @@
         {
           "id": "T-1",
           "description": "Inspect existing state typing and decide how to safely read optional config constraints from ChildGraphState without breaking current tests that omit config.",
-          "completed": false
+          "completed": true
         },
         {
           "id": "T-2",
           "description": "Implement deterministic section-path validation for ResumeChange.section values, supporting professional_summary, skills paths, professional_experience[n].highlights[n], and other allowed sections defined by config.",
-          "completed": false
+          "completed": true
         },
         {
           "id": "T-3",
           "description": "Implement old_value verification against base_resume for every replace action so the diff cannot patch a value that is not present at the target path.",
-          "completed": false
+          "completed": true
         },
         {
           "id": "T-4",
           "description": "Implement forbidden-section rejection for identity, contact, title, company, date, and education paths, using config constraints where present and safe defaults where absent.",
-          "completed": false
+          "completed": true
         },
         {
           "id": "T-5",
           "description": "Add tests covering allowed summary/highlight edits, forbidden immutable edits, mismatched old_value, and missing config fallback behavior.",
-          "completed": false
+          "completed": true
         }
       ],
       "priority": 2,
-      "status": "PENDING",
+      "status": "DONE",
       "notes": "This story protects the hallucination-prevention requirement in PRD/TRD. Prefer deterministic validation before downstream ApplyChangesNode exists."
     },
     {
@@ -109,31 +109,31 @@
         {
           "id": "T-1",
           "description": "Update child graph tests or add new graph-flow tests to mock strategy_generator output and verify the graph pauses at human_review with strategy data in state.",
-          "completed": false
+          "completed": true
         },
         {
           "id": "T-2",
           "description": "Ensure imports and node delegation keep existing tests for child_graph and evaluate_fit_node passing without changing unrelated graph topology.",
-          "completed": false
+          "completed": true
         },
         {
           "id": "T-3",
           "description": "Add an integration-style test for the no-clarification path from evaluate_fit through strategy_generator to the human_review interrupt using MemorySaver.",
-          "completed": false
+          "completed": true
         },
         {
           "id": "T-4",
           "description": "Add a regression test proving the needs-clarification path still interrupts before clarification and does not prematurely generate strategy output.",
-          "completed": false
+          "completed": true
         },
         {
           "id": "T-5",
           "description": "Run the required validation commands with uv and fix only issues directly caused by this feature's implementation.",
-          "completed": false
+          "completed": true
         }
       ],
       "priority": 3,
-      "status": "PENDING",
+      "status": "DONE",
       "notes": "Do not implement HumanReviewNode behavior in this feature; F-12 covers the review UI and later features cover revision/apply/PDF generation."
     }
   ]
