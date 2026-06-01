@@ -23,13 +23,29 @@
         "Then it raises a clear error or logs a warning without crashing"
       ],
       "tasks": [
-        {"id": "T-1", "description": "Create a new python module (e.g., src/utils/diff_applier.py) for the utility.", "completed": false},
-        {"id": "T-2", "description": "Implement a helper function to parse JSON paths like 'professional_summary' or 'professional_experience[0].highlights[1]'.", "completed": false},
-        {"id": "T-3", "description": "Implement the main apply_diffs function that iterates through a list of diffs and applies them to a deep copy of the base_resume.", "completed": false},
-        {"id": "T-4", "description": "Write pytest unit tests to verify the deterministic application of diffs, including nested lists and dictionaries.", "completed": false}
+        {
+          "id": "T-1",
+          "description": "Create a new python module (e.g., src/utils/diff_applier.py) for the utility.",
+          "completed": true
+        },
+        {
+          "id": "T-2",
+          "description": "Implement a helper function to parse JSON paths like 'professional_summary' or 'professional_experience[0].highlights[1]'.",
+          "completed": true
+        },
+        {
+          "id": "T-3",
+          "description": "Implement the main apply_diffs function that iterates through a list of diffs and applies them to a deep copy of the base_resume.",
+          "completed": true
+        },
+        {
+          "id": "T-4",
+          "description": "Write pytest unit tests to verify the deterministic application of diffs, including nested lists and dictionaries.",
+          "completed": true
+        }
       ],
       "priority": 1,
-      "status": "PENDING",
+      "status": "DONE",
       "notes": ""
     },
     {
@@ -44,9 +60,21 @@
         "and Then it updates the state with the resulting tailored_resume dictionary"
       ],
       "tasks": [
-        {"id": "T-1", "description": "Implement the ApplyChangesNode in src/nodes/child_nodes.py (or a dedicated file if preferred).", "completed": false},
-        {"id": "T-2", "description": "Register ApplyChangesNode in src/child_graph.py and set the routing logic so that when HumanReviewNode is approved, it flows here.", "completed": false},
-        {"id": "T-3", "description": "Write an integration test to ensure the node correctly updates the graph state with tailored_resume.", "completed": false}
+        {
+          "id": "T-1",
+          "description": "Implement the ApplyChangesNode in src/nodes/child_nodes.py (or a dedicated file if preferred).",
+          "completed": false
+        },
+        {
+          "id": "T-2",
+          "description": "Register ApplyChangesNode in src/child_graph.py and set the routing logic so that when HumanReviewNode is approved, it flows here.",
+          "completed": false
+        },
+        {
+          "id": "T-3",
+          "description": "Write an integration test to ensure the node correctly updates the graph state with tailored_resume.",
+          "completed": false
+        }
       ],
       "priority": 2,
       "status": "PENDING",
