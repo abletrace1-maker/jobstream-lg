@@ -36,5 +36,8 @@ def evaluate_fit(state: ChildGraphState) -> Dict[str, Any]:
         "job_details": state.get("job_details", {})
     })
     
-    # For US-002, we return the parsed questions
-    return {"status": "EVALUATING", "clarification_questions": response.questions if response else []}
+    # For US-003, we return the parsed questions and update status
+    questions = response.questions if response else []
+    status = "NEEDS_CLARIFICATION" if questions else "EVALUATING"
+    
+    return {"status": status, "clarification_questions": questions}

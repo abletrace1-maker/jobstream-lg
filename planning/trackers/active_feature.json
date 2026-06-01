@@ -4,7 +4,7 @@
   "featureId": "F-07",
   "featureName": "Evaluate Fit Node & Question Generation",
   "description": "Evaluate fit between base resume and job description, and generate structured clarification questions.",
-  "status": "IN_PROGRESS",
+  "status": "DONE",
   "userStories": [
     {
       "id": "US-001",
@@ -58,12 +58,12 @@
         "Then the node sets status to EVALUATING (or proceeds to next logical status) without adding questions"
       ],
       "tasks": [
-        {"id": "T-1", "description": "Update the node logic to return the correct state dictionary (clarification_questions and status)", "completed": false},
-        {"id": "T-2", "description": "Add routing logic to the child graph definition to handle NEEDS_CLARIFICATION interrupts", "completed": false},
-        {"id": "T-3", "description": "Write a unit test verifying state updates based on the presence of clarification questions", "completed": false}
+        {"id": "T-1", "description": "Update the node logic to return the correct state dictionary (clarification_questions and status)", "completed": true},
+        {"id": "T-2", "description": "Add routing logic to the child graph definition to handle NEEDS_CLARIFICATION interrupts", "completed": true},
+        {"id": "T-3", "description": "Write a unit test verifying state updates based on the presence of clarification questions", "completed": true}
       ],
       "priority": 3,
-      "status": "PENDING",
+      "status": "DONE",
       "notes": "Critical for LangGraph Checkpointer HITL interrupts."
     }
   ]

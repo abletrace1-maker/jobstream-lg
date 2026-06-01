@@ -1,3 +1,4 @@
+from unittest import mock
 from langgraph.checkpoint.memory import MemorySaver
 
 from src.child_graph import child_builder, child_graph
@@ -8,10 +9,6 @@ def test_child_graph_compiles():
     assert child_graph is not None
     
     # Check that all our nodes are present in the compiled graph's nodes
-    # We can inspect the graph's nodes attribute (or similar depending on langgraph version)
-    # The simplest check is simply that it compiled and we can invoke it.
-    
-    # Let's ensure we can get a visualization or just check nodes to ensure it works
     nodes = child_graph.nodes.keys()
     
     expected_nodes = {
@@ -42,12 +39,29 @@ def test_child_graph_interrupt():
         "job_url": "http://test.com",
         "job_description": "Test Engineer",
         "company_name": "Test Co",
-        "user_profile": "Test Profile"
+        "user_profile": "Test Profile",
+        "status": "EVALUATING"
     }
     
     # Run the graph
-    for event in test_graph.stream(state, config=config):
-        pass
+    with mock.patch("src.nodes.evaluate_fit_node.ChatOpenAI") as mock_chat:
+        mock_instance = mock.MagicMock()
+        mock_chat.return_value = mock_instance
+        
+        mock_structured = mock.MagicMock()
+        mock_instance.with_structured_output.return_value = mock_structured
+        
+        from src.schemas import EvaluateFitOutput, ClarificationQuestion
+        mock_response = EvaluateFitOutput(
+            questions=[ClarificationQuestion(id="1", type="text", question="Q", options=[])]
+        )
+        
+        # In Langchain, a MagicMock inside a chain is called via __call__ or invoke
+        mock_structured.return_value = mock_response
+        mock_structured.invoke.return_value = mock_response
+        
+        for event in test_graph.stream(state, config=config):
+            pass
         
     # Check if the graph is paused/interrupted
     state_snapshot = test_graph.get_state(config)

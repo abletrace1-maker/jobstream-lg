@@ -26,9 +26,14 @@ child_builder.add_node("apply_changes", apply_changes)
 child_builder.add_node("cover_letter", cover_letter)
 child_builder.add_node("pdf_compiler", pdf_compiler)
 
-# Define a linear sequential edge flow
+def route_after_evaluate(state: ChildGraphState) -> str:
+    if state.get("status") == "NEEDS_CLARIFICATION":
+        return "clarification"
+    return "strategy_generator"
+
+# Define flow with conditional routing
 child_builder.add_edge(START, "evaluate_fit")
-child_builder.add_edge("evaluate_fit", "clarification")
+child_builder.add_conditional_edges("evaluate_fit", route_after_evaluate)
 child_builder.add_edge("clarification", "strategy_generator")
 child_builder.add_edge("strategy_generator", "human_review")
 child_builder.add_edge("human_review", "apply_changes")
