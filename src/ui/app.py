@@ -171,6 +171,77 @@ def main():
                             st.success("Answers submitted successfully! Resuming workflow...")
                             st.rerun()
                             
+        # US-001: Review Drafted Strategies Section
+        strategy_drafted_jobs = [j for j in jobs if j.get("status") == JobStatus.STRATEGY_DRAFTED.value]
+        if strategy_drafted_jobs:
+            st.subheader("📝 Action Required: Review Drafted Strategies")
+            
+            selected_strategy_title = st.selectbox(
+                "Select a job to review the drafted strategy",
+                options=[f"{j['title']} at {j['company']} ({j['job_id']})" for j in strategy_drafted_jobs],
+                key="strategy_selectbox"
+            )
+            
+            if selected_strategy_title:
+                selected_job_id = selected_strategy_title.split("(")[-1].strip(")")
+                
+                # Extract strategy_markdown and resume_diffs
+                state_dict = get_latest_graph_state(selected_job_id)
+                if state_dict:
+                    strategy_markdown = state_dict.get("strategy_markdown", "No strategy drafted yet.")
+                    resume_diffs = state_dict.get("resume_diffs", None)
+                    
+                    st.write("### Strategy")
+                    st.markdown(strategy_markdown)
+                    
+                    st.write("### Resume Diffs")
+                    if resume_diffs:
+                        if isinstance(resume_diffs, dict):
+                            st.json(resume_diffs)
+                        elif hasattr(resume_diffs, "model_dump"):
+                            st.json(resume_diffs.model_dump())
+                        else:
+                            st.json(resume_diffs)
+                    else:
+                        st.info("No resume diffs generated.")
+                        
+                    # US-002: Approve or Provide Feedback
+                    st.write("### Review Action")
+                    
+                    col1, col2 = st.columns([1, 1])
+                    
+                    with col1:
+                        if st.button("✅ Approve Strategy", key=f"approve_{selected_job_id}"):
+                            config = {"configurable": {"thread_id": selected_job_id}}
+                            child_graph.update_state(config, {"user_feedback": ""})
+                            
+                            for _ in child_graph.stream(None, config, stream_mode="values"):
+                                pass
+                                
+                            st.success("Strategy approved! Resuming workflow...")
+                            st.rerun()
+                            
+                    with col2:
+                        with st.form(key=f"feedback_form_{selected_job_id}"):
+                            feedback_text = st.text_area(
+                                "Provide feedback to revise the strategy", 
+                                placeholder="E.g., Please emphasize my Python skills more..."
+                            )
+                            submit_feedback = st.form_submit_button("Submit Feedback")
+                            
+                            if submit_feedback:
+                                if not feedback_text.strip():
+                                    st.warning("Please enter feedback before submitting.")
+                                else:
+                                    config = {"configurable": {"thread_id": selected_job_id}}
+                                    child_graph.update_state(config, {"user_feedback": feedback_text.strip()})
+                                    
+                                    for _ in child_graph.stream(None, config, stream_mode="values"):
+                                        pass
+                                        
+                                    st.success("Feedback submitted! Resuming workflow...")
+                                    st.rerun()
+                        
     else:
         st.info("No jobs found in the tracker. Add jobs to `data/job_tracker.json` to begin.")
 

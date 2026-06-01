@@ -4,7 +4,7 @@
   "featureId": "F-12",
   "featureName": "Strategy Approval & Diff Review UI",
   "description": "Streamlit UI for presenting the drafted strategy and JSON diffs to the user, allowing them to approve or provide feedback to resume the LangGraph workflow.",
-  "status": "IN_PROGRESS",
+  "status": "DONE",
   "userStories": [
     {
       "id": "US-001",
@@ -18,12 +18,12 @@
         "and Then I can select a job and view its strategy_markdown and resume_diffs from the LangGraph state"
       ],
       "tasks": [
-        {"id": "T-1", "description": "Update app.py to filter jobs with status STRATEGY_DRAFTED and create a selectbox to choose one.", "completed": false},
-        {"id": "T-2", "description": "Extract strategy_markdown and resume_diffs from the SqliteSaver checkpointer for the selected job.", "completed": false},
-        {"id": "T-3", "description": "Render the strategy_markdown using st.markdown and display the resume_diffs clearly (e.g., using st.json or a custom representation).", "completed": false}
+        {"id": "T-1", "description": "Update app.py to filter jobs with status STRATEGY_DRAFTED and create a selectbox to choose one.", "completed": true},
+        {"id": "T-2", "description": "Extract strategy_markdown and resume_diffs from the SqliteSaver checkpointer for the selected job.", "completed": true},
+        {"id": "T-3", "description": "Render the strategy_markdown using st.markdown and display the resume_diffs clearly (e.g., using st.json or a custom representation).", "completed": true}
       ],
       "priority": 1,
-      "status": "PENDING",
+      "status": "DONE",
       "notes": ""
     },
     {
@@ -39,12 +39,12 @@
         "Then the graph state is updated with my user_feedback and execution resumes"
       ],
       "tasks": [
-        {"id": "T-1", "description": "Add an approval button and a text area for feedback in app.py for the selected job strategy.", "completed": false},
-        {"id": "T-2", "description": "Implement logic for the 'Approve' button to inject user_feedback='' (or similar null signal) into the child_graph state and resume it via graph.stream.", "completed": false},
-        {"id": "T-3", "description": "Implement logic for the feedback submission to inject the text area content as user_feedback into the child_graph state and resume it.", "completed": false}
+        {"id": "T-1", "description": "Add an approval button and a text area for feedback in app.py for the selected job strategy.", "completed": true},
+        {"id": "T-2", "description": "Implement logic for the 'Approve' button to inject user_feedback='' (or similar null signal) into the child_graph state and resume it via graph.stream.", "completed": true},
+        {"id": "T-3", "description": "Implement logic for the feedback submission to inject the text area content as user_feedback into the child_graph state and resume it.", "completed": true}
       ],
       "priority": 2,
-      "status": "PENDING",
+      "status": "DONE",
       "notes": ""
     }
   ]
