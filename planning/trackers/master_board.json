@@ -86,7 +86,7 @@
         {
           "id": "F-13",
           "name": "Job Tracker Syncing Mechanism",
-          "status": "PENDING"
+          "status": "DONE"
         }
       ]
     },
@@ -97,7 +97,7 @@
         {
           "id": "F-14",
           "name": "JSON Diff Applier Utility",
-          "status": "PENDING"
+          "status": "IN_PROGRESS"
         },
         {
           "id": "F-15",
