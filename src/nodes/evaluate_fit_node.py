@@ -2,7 +2,7 @@ from typing import Dict, Any, List
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from src.state import ChildGraphState
-from src.schemas import ClarificationQuestion
+from src.schemas import ClarificationQuestion, EvaluateFitOutput
 
 # Define the prompt (T-1)
 EVALUATE_FIT_PROMPT = """You are an expert technical recruiter and career coach.
@@ -22,21 +22,19 @@ def evaluate_fit(state: ChildGraphState) -> Dict[str, Any]:
     Evaluate fit between base resume and job description, and generate structured clarification questions.
     """
     llm = ChatOpenAI(model="gpt-4o", temperature=0)
+    structured_llm = llm.with_structured_output(EvaluateFitOutput)
     
     prompt = ChatPromptTemplate.from_messages([
         ("system", EVALUATE_FIT_PROMPT),
         ("human", "Evaluate the fit and provide clarification questions if necessary.")
     ])
     
-    # We will just invoke the LLM here for US-001. 
-    # Structured output binding is added in US-002.
-    chain = prompt | llm
+    chain = prompt | structured_llm
     
     response = chain.invoke({
         "base_resume": state.get("base_resume", {}),
         "job_details": state.get("job_details", {})
     })
     
-    # For US-001, we just return empty or dummy for state updates.
-    # US-003 will handle proper state updating and routing.
-    return {"status": "EVALUATING", "clarification_questions": []}
+    # For US-002, we return the parsed questions
+    return {"status": "EVALUATING", "clarification_questions": response.questions if response else []}

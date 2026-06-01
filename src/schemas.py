@@ -1,5 +1,5 @@
 from typing import List, Dict, Optional, Literal
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 class ContactInfo(BaseModel):
     email: str
@@ -59,6 +59,16 @@ class ClarificationQuestion(BaseModel):
     type: Literal["multiple_choice", "text"]
     question: str
     options: List[str]
+
+    @model_validator(mode="after")
+    def check_options_for_multiple_choice(self):
+        if self.type == "multiple_choice":
+            if "Let LLM decide" not in self.options:
+                self.options.append("Let LLM decide")
+        return self
+
+class EvaluateFitOutput(BaseModel):
+    questions: List[ClarificationQuestion] = Field(default_factory=list)
 
 class ResumeChange(BaseModel):
     action: str

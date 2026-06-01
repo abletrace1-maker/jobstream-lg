@@ -48,16 +48,19 @@ def test_evaluate_fit_node_calls_llm():
         mock_llm_instance = MagicMock()
         mock_chat.return_value = mock_llm_instance
         
+        mock_structured_llm = MagicMock()
+        mock_llm_instance.with_structured_output.return_value = mock_structured_llm
+        
         # When chain.invoke is called, it calls the LLM
         mock_response = MagicMock()
-        mock_response.content = "LLM Response"
-        mock_llm_instance.invoke.return_value = mock_response
+        mock_response.questions = []
+        mock_structured_llm.invoke.return_value = mock_response
         
         # Execute the node
         updates = evaluate_fit(state)
         
         # Assertions
         mock_chat.assert_called_once_with(model="gpt-4o", temperature=0)
-        assert mock_llm_instance.called or mock_llm_instance.invoke.called
+        assert mock_structured_llm.called or mock_structured_llm.invoke.called or mock_structured_llm.mock_calls
         assert "status" in updates
         

@@ -105,12 +105,22 @@ def test_clarification_question_valid():
       "question": "The job requires workflow orchestration. Which experience should we highlight most?",
       "options": [
         "Highlight the Airflow project from Tech Corp",
-        "Highlight the LangChain project from previous startup",
-        "Let the LLM decide the best approach based on job requirements"
+        "Highlight the LangChain project from previous startup"
       ]
     }
     obj = ClarificationQuestion(**data)
     assert obj.id == "q1"
+    assert "Let LLM decide" in obj.options
+
+def test_clarification_question_text_no_let_llm_decide():
+    data = {
+      "id": "q2",
+      "type": "text",
+      "question": "What is your github repo?",
+      "options": []
+    }
+    obj = ClarificationQuestion(**data)
+    assert "Let LLM decide" not in obj.options
 
 def test_clarification_question_invalid():
     with pytest.raises(ValidationError):

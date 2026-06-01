@@ -37,12 +37,12 @@
         "and Then if the question type is multiple_choice, the options array MUST include the string 'Let LLM decide'"
       ],
       "tasks": [
-        {"id": "T-1", "description": "Implement ClarificationQuestion schema validation (including the 'Let LLM decide' constraint)", "completed": false},
-        {"id": "T-2", "description": "Bind the schema to the EvaluateFitNode LLM using with_structured_output", "completed": false},
-        {"id": "T-3", "description": "Write unit tests for schema parsing and the 'Let LLM decide' constraint", "completed": false}
+        {"id": "T-1", "description": "Implement ClarificationQuestion schema validation (including the 'Let LLM decide' constraint)", "completed": true},
+        {"id": "T-2", "description": "Bind the schema to the EvaluateFitNode LLM using with_structured_output", "completed": true},
+        {"id": "T-3", "description": "Write unit tests for schema parsing and the 'Let LLM decide' constraint", "completed": true}
       ],
       "priority": 2,
-      "status": "PENDING",
+      "status": "DONE",
       "notes": "Ensures the UI doesn't crash on malformed LLM questions."
     },
     {
