@@ -1,0 +1,53 @@
+{
+  "project": "JobStream Agent",
+  "epicId": "E-04",
+  "featureId": "F-10",
+  "featureName": "Streamlit Setup & Checkpoint Reader",
+  "description": "Initialize the Streamlit UI, connect to the LangGraph SQLite checkpoints, and display the synced Job Tracker dashboard.",
+  "status": "DONE",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Streamlit Foundation & Checkpoint Initialization",
+      "description": "As a job seeker, I want to launch the Streamlit application and see it successfully connected to the LangGraph checkpoint database, so that I know the system is ready to read my active application threads.",
+      "acceptanceCriteria": [
+        "Scenario: User launches the Streamlit app",
+        "Given the Streamlit app is started via uv run streamlit run",
+        "and Given the SQLite checkpoint database exists at data/checkpoints.sqlite",
+        "When I view the main page",
+        "Then I see the app title and a successful connection status to the checkpoint database."
+      ],
+      "tasks": [
+        {"id": "T-1", "description": "Create src/ui/app.py with Streamlit page config and layout structure", "completed": true},
+        {"id": "T-2", "description": "Implement get_checkpointer() using SqliteSaver connecting to data/checkpoints.sqlite", "completed": true},
+        {"id": "T-3", "description": "Add UI element to display database connection status", "completed": true}
+      ],
+      "priority": 1,
+      "status": "DONE",
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Job Tracker Dashboard & Graph State Sync",
+      "description": "As a job seeker, I want to view a dashboard of my job applications synced with their latest graph execution status, so that I can see which applications require my manual review or clarification.",
+      "acceptanceCriteria": [
+        "Scenario: User views the job applications dashboard",
+        "Given the app is connected to the checkpointer",
+        "and Given there are jobs listed in data/job_tracker.json",
+        "When I view the dashboard",
+        "Then I see a table or list of jobs",
+        "and Then the status of each job matches its latest state from the LangGraph checkpointer",
+        "and Then the updated status is written back to job_tracker.json"
+      ],
+      "tasks": [
+        {"id": "T-1", "description": "Implement function to read data/job_tracker.json", "completed": true},
+        {"id": "T-2", "description": "Implement function to query SqliteSaver for the latest state of each job (using job_id as thread_id)", "completed": true},
+        {"id": "T-3", "description": "Implement write-back function to update job_tracker.json with the latest graph statuses", "completed": true},
+        {"id": "T-4", "description": "Display the merged job data in a Streamlit dataframe or UI list on the main page", "completed": true}
+      ],
+      "priority": 2,
+      "status": "DONE",
+      "notes": ""
+    }
+  ]
+}
