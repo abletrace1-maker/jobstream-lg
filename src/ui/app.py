@@ -155,13 +155,21 @@ def main():
                             
                     st.write("Please answer the following questions so the AI can proceed to draft your tailored resume:")
                     with st.form(key=f"clarification_form_{selected_job_id}"):
-                        _ = render_clarification_questions(questions)
+                        answers = render_clarification_questions(questions)
                         
-                        # We just display the questions here, submit logic belongs to US-002
                         submit_button = st.form_submit_button(label="Submit Answers")
                         
                         if submit_button:
-                            st.info("Submit logic will be implemented in US-002")
+                            # US-002 T-2: Inject answers into the paused Child Sub-Graph
+                            config = {"configurable": {"thread_id": selected_job_id}}
+                            child_graph.update_state(config, {"user_clarification_answers": answers})
+                            
+                            # US-002 T-3: Trigger the resumption of the graph
+                            for _ in child_graph.stream(None, config, stream_mode="values"):
+                                pass
+                                
+                            st.success("Answers submitted successfully! Resuming workflow...")
+                            st.rerun()
                             
     else:
         st.info("No jobs found in the tracker. Add jobs to `data/job_tracker.json` to begin.")
