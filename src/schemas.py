@@ -79,3 +79,9 @@ class ResumeChange(BaseModel):
 
 class ResumeDiffSchema(BaseModel):
     changes: List[ResumeChange]
+
+class StrategyGeneratorOutput(BaseModel):
+    strategy_markdown: str = Field(
+        description="Human-readable tailoring strategy describing the same changes as resume_diffs."
+    )
+    resume_diffs: ResumeDiffSchema

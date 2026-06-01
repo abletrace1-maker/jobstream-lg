@@ -1,8 +1,8 @@
-from typing import Dict, Any, List
+from typing import Dict, Any
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from src.state import ChildGraphState
-from src.schemas import ClarificationQuestion, EvaluateFitOutput
+from src.schemas import EvaluateFitOutput
 
 # Define the prompt (T-1)
 EVALUATE_FIT_PROMPT = """You are an expert technical recruiter and career coach.

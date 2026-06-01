@@ -1,4 +1,3 @@
-import pytest
 from unittest.mock import patch, MagicMock
 
 from src.nodes.evaluate_fit_node import evaluate_fit

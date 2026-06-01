@@ -1,100 +1,160 @@
-# Agent Review Notes
+# JobStream Agent Review & Status Report
 
-Based on a thorough review of your codebase (`src/`, `planning/trackers/master_board.json`) and the project design documents (`PRD.md`, `TRD.md`, `prompt_details.MD`), here is the current status of the JobStream LangGraph agent.
+This document provides a comprehensive review of your LangGraph JobStream agent based on your repository's code, `master_board.json`, and the Product/Technical Requirements.
 
-## 1. Node Status & Completeness
+## 1. Overall Status & Node Completeness
 
-The architecture and state management components are successfully established, but most of the logic (especially AI nodes) is currently stubbed out.
+Based on `master_board.json`, the project is complete up to **Feature F-07 (Evaluate Fit Node & Question Generation)**. The architecture for Map-Reduce (Parent/Child graphs), Web Scraping, Resume Parsing, and the first LLM interaction are fully operational.
 
-### Parent Graph
-*   **`load_config_and_resume`**: **Complete**. Successfully loads `job_tracker.json` (or creates a dummy file if missing) and parses the base resumes from `data/json_resumes/*.json` into Pydantic models.
-*   **`job_ingestion` (Web Scraper)**: **Incomplete (Stubbed)**. A `dummy_job_ingestion` function is in place. It conceptually passes jobs through but does not scrape URLs or parse raw text yet.
-*   **`child_graph` (Map-Reduce)**: **Complete**. The mapping logic (`map_to_job_processor` using LangGraph's `Send` API) is built. It correctly matches a scraped job to the corresponding `base_resume` and fires off the child graph.
+### Parent Graph Nodes (Batch Orchestration)
+*   **`load_config_and_resume` (COMPLETE):** Successfully reads `data/job_tracker.json` to get pending jobs and reads `data/json_resumes/` to load base resumes into memory.
+*   **`job_ingestion` (COMPLETE):** Uses the custom stealth Web Scraper (`src/utils/scraper.py`) and HTML Parser to pull job descriptions from URLs or local text files, converting them into a structured `JobDetailsSchema`.
 
-### Child Graph (Job Processing Pipeline)
-All nodes in the child graph are currently **Incomplete (Stubbed)**. They exist in `src/nodes/child_nodes.py` but merely return empty dictionaries (`{}`).
-*   `evaluate_fit`: Stubbed.
-*   `clarification`: Stubbed.
-*   `strategy_generator`: Stubbed.
-*   `human_review`: Stubbed.
-*   `apply_changes`: Stubbed.
-*   `cover_letter`: Stubbed.
-*   `pdf_compiler`: Stubbed.
-
-### Standalone Utilities
-*   **`resume_converter.py`**: **Complete**. This standalone script successfully parses `.pdf`, `.docx`, and `.txt` files into the required JSON schema format.
+### Child Graph Nodes (Per-Job Execution)
+*   **`evaluate_fit` (COMPLETE):** Invokes an OpenAI model (`gpt-4o`) using structured outputs to compare the parsed base resume with the scraped job details. It successfully outputs `ClarificationQuestion` items if context is missing.
+*   **`clarification` (STUBBED):** Currently just a placeholder. (Pending F-11 Streamlit Interrupt UI).
+*   **`strategy_generator` (STUBBED):** Currently a placeholder. (Pending F-08).
+*   **`human_review` (STUBBED):** Currently a placeholder. (Pending F-12).
+*   **`apply_changes` (STUBBED):** Currently a placeholder. (Pending F-14).
+*   **`cover_letter` (STUBBED):** Currently a placeholder. (Pending F-15).
+*   **`pdf_compiler` (STUBBED):** Currently a placeholder. (Pending F-16).
 
 ---
 
-## 2. How to Test Each Node
+## 2. Mermaid Diagram of the Agent
 
-Because the system relies heavily on stubs, testing currently requires some manual mocking.
-
-*   **`resume_converter`**: You can test this right now. Place a PDF or Word resume anywhere on your machine and run: 
-    ```bash
-    uv run python -m src.resume_converter /path/to/resume.pdf software_engineering
-    ```
-    This will save a parsed JSON file to `data/json_resumes/base_resume_software_engineering.json`.
-*   **`load_config_and_resume`**: Simply running the parent graph will trigger this. You can manually edit the `data/job_tracker.json` file to add jobs.
-*   **`job_ingestion` (Web Scraper)**: Right now, this doesn't scrape anything. Once built, you will place the target job URL in the `source` field of `data/job_tracker.json` (with `source_type: "url"`). If you are using a raw text file, you would set `source_type: "text"` and place the text file path in the `source` field.
-    *   *To test downstream nodes right now:* You must manually inject valid `JobDetailsSchema` dictionaries into the `scraped_jobs` state before triggering the `child_graph`.
-
----
-
-## 3. Agent Architecture Diagram (Mermaid)
-
-Here is a visual representation of the current LangGraph implementation:
+Here is the current operational state of your LangGraph architecture:
 
 ```mermaid
 graph TD
-    subgraph Parent Graph
-        START((START)) --> load_config[load_config_and_resume]
-        load_config --> ingest[job_ingestion / Web Scraper]
-        ingest -- Send API (Map-Reduce) --> child[child_graph]
-        child --> END_P((END))
+    %% Parent Graph
+    subgraph Parent Graph [Parent Batch Orchestrator]
+        START((START)) --> LCR[load_config_and_resume]
+        LCR --> JI[job_ingestion]
+        
+        %% Map operation
+        JI -- "Send API (Map)" --> CG_INVOKE
     end
     
-    subgraph Child Graph
-        START_C((START)) --> eval[evaluate_fit]
-        eval --> clarify[clarification]
-        clarify --> strat[strategy_generator]
-        strat --> review[human_review]
-        review --> apply[apply_changes]
-        apply --> cover[cover_letter]
-        cover --> pdf[pdf_compiler]
-        pdf --> END_C((END))
+    %% Child Sub-Graph
+    subgraph Child Graph [Child Sub-Graph: Per-Job]
+        CG_INVOKE((Start Child)) --> EF[evaluate_fit]
+        
+        EF -- "If Questions Generated" --> CLAR[clarification ⚠️ STUBBED]
+        EF -- "If Perfect Fit" --> SG[strategy_generator ⚠️ STUBBED]
+        CLAR --> SG
+        
+        SG --> HR[human_review ⚠️ STUBBED]
+        HR --> AC[apply_changes ⚠️ STUBBED]
+        
+        AC --> CVL[cover_letter ⚠️ STUBBED]
+        AC --> PDF[pdf_compiler ⚠️ STUBBED]
+        
+        CVL --> END_CHILD((END Child))
+        PDF --> END_CHILD
     end
 
-    %% Human in the loop interruption points configured in code
-    style clarify stroke:#f66,stroke-width:2px,stroke-dasharray: 5 5
-    style review stroke:#f66,stroke-width:2px,stroke-dasharray: 5 5
+    CG_INVOKE -.- EF
+    END_CHILD -.- END((END Parent))
 ```
-*(Nodes with red dashed borders indicate configured `interrupt_before` breakpoints for Human-in-the-Loop interaction).*
 
 ---
 
-## 4. Running and Testing in the Terminal
+## 3. How to Test Each Completed Node
 
-Currently, if you want to run this in the terminal, you need to create a simple execution script (e.g., `main.py`) that invokes the `parent_graph`.
+### A. Testing the Resume to JSON Converter
+1.  **Where to put the file:** Place a PDF, DOCX, or TXT version of your resume into `data/starter_resumes/`. **Crucial Naming Convention:** Name it `starter_{category}.pdf` (e.g., `starter_software_engineering.pdf`).
+2.  **How it works:** The utility reads the file, parses the text, uses LLM/regex to structure it, and saves the output to `data/json_resumes/software_engineering.json`.
+3.  **To run it manually:** Create a small script: `uv run python -c "from src.resume_converter import convert_starter_resumes_to_json; convert_starter_resumes_to_json()"`
 
-**How it works:**
-1. You invoke the graph using `parent_graph.invoke({"pending_jobs": []}, config={"configurable": {"thread_id": "1"}})`.
-2. Because the child graph uses `SqliteSaver` checkpointer and sets `interrupt_before=["clarification", "human_review"]`, the execution will physically pause when it reaches these nodes.
-3. In a terminal script, you would detect this pause by checking the graph's state (`graph.get_state(config)`).
+### B. Testing Web Scraper & Job Ingestion
+1.  **Where to put the URL/Text:** Edit `data/job_tracker.json`. 
+    *   **For a URL:** Set `"source_type": "url"` and `"source": "https://boards.greenhouse.io/example/jobs/123"`.
+    *   **For a Local File:** Save your job description text to a file like `data/job1.txt`. Set `"source_type": "file"` and `"source": "data/job1.txt"`.
+2.  **How to test:** When the Parent Graph runs, the `job_ingestion` node will automatically read the tracker, scrape the URL (bypassing bot protections with undetected-chromedriver), parse the HTML, and return it.
 
-**Terminal Interactions:**
-If you build a terminal harness, the questions the agent generates *can* be presented in the terminal. Your Python script would loop through `state.next`, check if it's paused at `clarification`, print the `clarification_questions` from the state, use Python's built-in `input()` to capture your text answers, update the state, and then call `invoke(None, config)` to resume execution.
-
-**User Experience (UX) Recommendations:**
-Right now, the nodes silently return `{}`. To make the terminal experience much better without relying solely on Streamlit:
-1. **Streaming Output**: Instead of `graph.invoke()`, you should run the graph using `for event in graph.stream(...)`. This allows you to print to the terminal every time a node finishes.
-2. **Logging/Print Statements**: It is highly recommended to add `print(f"--- Running {node_name} ---")` or use the `logging` library at the start of each node. This will show you exactly where the state machine is at any given time.
+### C. Testing Evaluate Fit
+*   This node triggers automatically in the Child Graph. It takes the JSON from the base resume and the JSON from the ingested job and queries `gpt-4o`. To test this, you must have an `OPENAI_API_KEY` set in your environment variables.
 
 ---
 
-## 5. Prompt Alignment with `prompt_details.md`
+## 4. Running the Agent in the Terminal
 
-Currently, **none of the prompts have been implemented**. 
-Because all LLM-driven nodes (`evaluate_fit`, `strategy_generator`, `cover_letter`, etc.) are empty Python stubs (`return {}`), there are no prompt templates or LLM chains in the codebase yet to compare against your `prompt_details.MD` specifications.
+While your end goal is Streamlit (F-10), you can easily "fire it up" in the terminal right now to see LangGraph stream its states. 
 
-When you transition from Epic 2 to Epic 3, you will need to map the instructions outlined in `prompt_details.MD` directly into LangChain `ChatPromptTemplate` configurations inside `src/nodes/child_nodes.py`.
+**Create a file named `run_agent.py` in your project root:**
+```python
+import os
+import json
+from src.graph import parent_graph
+
+# Ensure OpenAI API key is set
+if not os.getenv("OPENAI_API_KEY"):
+    print("Please set OPENAI_API_KEY environment variable.")
+    exit(1)
+
+# Start State
+initial_state = {
+    "config": {},
+    "prompts": {},
+    "scraped_jobs": [],
+    "failed_jobs": []
+}
+
+# Provide a Thread ID for checkpointing (memory)
+config = {"configurable": {"thread_id": "terminal-test-1"}}
+
+print("🚀 Starting JobStream Agent...")
+# Stream Mode outputs every node's updates as they finish
+for event in parent_graph.stream(initial_state, config=config, stream_mode="updates"):
+    for node_name, state_update in event.items():
+        print(f"\n✅ Finished Node: {node_name}")
+        
+        # Add basic logging so you know what happened
+        if node_name == "load_config_and_resume":
+            print(f"   Found {len(state_update.get('pending_jobs', []))} pending jobs.")
+        elif node_name == "job_ingestion":
+            print(f"   Successfully scraped {len(state_update.get('scraped_jobs', []))} jobs.")
+        elif node_name == "child_graph":
+            print(f"   Child graph updated status: {state_update.get('status')}")
+            if state_update.get('clarification_questions'):
+                print("   ❓ Questions generated by LLM:")
+                for q in state_update['clarification_questions']:
+                    print(f"      - {q.question}")
+```
+
+**Run it via terminal:**
+```bash
+export OPENAI_API_KEY="sk-..."
+uv run python run_agent.py
+```
+
+**Will it ask you questions in the terminal?**
+Not yet. The Child Graph *generates* questions inside `evaluate_fit`, but the `clarification` node (which handles the human-in-the-loop pause) is currently a stub returning `{}`. Once Feature F-11 is implemented, LangGraph will yield an `__interrupt__`, pausing execution. You would then capture user input via Python's `input()` function and resume the graph with `parent_graph.invoke(Command(resume=...))`.
+
+**Suggestions for Terminal UX:** 
+For now, the `run_agent.py` script provided above includes sufficient print statements so you aren't staring at a blank screen.
+
+---
+
+## 5. Review of Prompts vs. Design Documents
+
+I compared `src/nodes/evaluate_fit_node.py` against `agent-design-documents/prompt_details.MD`. 
+
+**Status:** The current prompt requires updating.
+
+**What is currently in code (`EVALUATE_FIT_PROMPT`):**
+```text
+You are an expert technical recruiter and career coach.
+Your task is to evaluate the fit between the candidate's base resume and the job description.
+Identify any missing context or clarification needed to tailor the resume effectively.
+If there are missing details that could strengthen the application, formulate clarification questions.
+```
+
+**What is missing (per `prompt_details.MD`):**
+1.  **Fit Scoring:** The PRD requests a 1-10 fit score and a `should_apply` flag if the score falls below a threshold (e.g., 3/10). *Currently, `EvaluateFitOutput` in `schemas.py` only contains a list of questions, with no score fields.*
+2.  **Gap Analysis instruction:** The prompt does not explicitly instruct the LLM to identify completely missing requirements.
+3.  **Forcing the LLM Option:** The prompt does not explicitly instruct the LLM to always provide a "Let the LLM decide" option (though `schemas.py` enforces this via a clever Pydantic `@model_validator`, it is best practice to also instruct the LLM to do so).
+
+**Recommendation:** 
+Before starting Epic 3's next features, you should expand `schemas.EvaluateFitOutput` to include `fit_score: int` and `should_apply: bool`, and enrich `EVALUATE_FIT_PROMPT` to include the specific directives detailed in `prompt_details.MD`.
