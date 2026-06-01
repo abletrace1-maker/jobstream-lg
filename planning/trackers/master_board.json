@@ -29,12 +29,12 @@
         {
           "id": "F-04",
           "name": "Web Scraper Utility",
-          "status": "PENDING"
+          "status": "DONE"
         },
         {
           "id": "F-05",
           "name": "Job Ingestion Node (URL & Text Handling)",
-          "status": "PENDING"
+          "status": "DONE"
         },
         {
           "id": "F-06",
@@ -50,7 +50,7 @@
         {
           "id": "F-07",
           "name": "Evaluate Fit Node & Question Generation",
-          "status": "PENDING"
+          "status": "DONE"
         },
         {
           "id": "F-08",
