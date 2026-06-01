@@ -4,7 +4,7 @@
   "featureId": "F-14",
   "featureName": "JSON Diff Applier Utility",
   "description": "Deterministic Python utility (non-LLM) using the resume_diffs JSON to patch the base_resume dictionary. Also integrated into the LangGraph as ApplyChangesNode.",
-  "status": "IN_PROGRESS",
+  "status": "DONE",
   "userStories": [
     {
       "id": "US-001",
@@ -63,21 +63,21 @@
         {
           "id": "T-1",
           "description": "Implement the ApplyChangesNode in src/nodes/child_nodes.py (or a dedicated file if preferred).",
-          "completed": false
+          "completed": true
         },
         {
           "id": "T-2",
           "description": "Register ApplyChangesNode in src/child_graph.py and set the routing logic so that when HumanReviewNode is approved, it flows here.",
-          "completed": false
+          "completed": true
         },
         {
           "id": "T-3",
           "description": "Write an integration test to ensure the node correctly updates the graph state with tailored_resume.",
-          "completed": false
+          "completed": true
         }
       ],
       "priority": 2,
-      "status": "PENDING",
+      "status": "DONE",
       "notes": ""
     }
   ]
