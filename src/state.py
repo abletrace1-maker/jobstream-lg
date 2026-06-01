@@ -32,9 +32,9 @@ class ChildGraphState(TypedDict):
     clarification_questions: List[ClarificationQuestion]
     user_clarification_answers: Dict[str, str]
     strategy_markdown: str
-    resume_diffs: ResumeDiffSchema
+    resume_diffs: ResumeDiffSchema | None
     user_feedback: str
-    tailored_resume: BaseResumeSchema
+    tailored_resume: BaseResumeSchema | None
     cover_letter_markdown: str
     resume_pdf_path: str
     cover_letter_pdf_path: str

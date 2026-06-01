@@ -1,6 +1,4 @@
-import os
 import json
-import tempfile
 import pytest
 from unittest import mock
 
@@ -64,12 +62,12 @@ def test_load_config_and_resume_with_existing_data(dummy_resume_data, tmp_path):
     job_tracker_path.write_text(json.dumps(job_data))
     
     # Write mock resume
-    resume_path = resumes_dir / "data_science.json"
+    resume_path = resumes_dir / "base_resume_data_science.json"
     resume_path.write_text(json.dumps(dummy_resume_data))
     
     # Patch the paths in the module
     with mock.patch("src.nodes.parent_nodes.os.path.exists", side_effect=lambda path: str(path).endswith("job_tracker.json") or "json_resumes" in str(path)):
-        with mock.patch("src.nodes.parent_nodes.open", mock.mock_open(read_data=job_tracker_path.read_text())) as m:
+        with mock.patch("src.nodes.parent_nodes.open", mock.mock_open(read_data=job_tracker_path.read_text())):
             # We need a more complex mock for open since it opens multiple files
             def mock_open_wrapper(file, mode="r", encoding=None):
                 if "job_tracker.json" in file:
@@ -79,7 +77,7 @@ def test_load_config_and_resume_with_existing_data(dummy_resume_data, tmp_path):
                 return mock.mock_open()()
             
             with mock.patch("src.nodes.parent_nodes.open", side_effect=mock_open_wrapper):
-                with mock.patch("src.nodes.parent_nodes.os.listdir", return_value=["data_science.json"]):
+                with mock.patch("src.nodes.parent_nodes.os.listdir", return_value=["base_resume_data_science.json"]):
                     state = {}
                     updates = load_config_and_resume(state)
                     
@@ -95,8 +93,8 @@ def test_load_config_and_resume_with_existing_data(dummy_resume_data, tmp_path):
 
 def test_load_config_and_resume_creates_dummy(tmp_path):
     with mock.patch("src.nodes.parent_nodes.os.path.exists", return_value=False):
-        with mock.patch("src.nodes.parent_nodes.open", mock.mock_open()) as m_open:
-            with mock.patch("src.nodes.parent_nodes.os.makedirs") as m_makedirs:
+        with mock.patch("src.nodes.parent_nodes.open", mock.mock_open()):
+            with mock.patch("src.nodes.parent_nodes.os.makedirs"):
                 state = {}
                 updates = load_config_and_resume(state)
                 

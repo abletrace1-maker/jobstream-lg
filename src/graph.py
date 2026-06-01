@@ -58,7 +58,6 @@ def dummy_job_ingestion(state: ParentGraphState) -> Dict[str, Any]:
     """
     Stub job_ingestion node to move pending_jobs to scraped_jobs for testing.
     """
-    pending_jobs = state.get("pending_jobs", [])
     scraped_jobs = state.get("scraped_jobs", [])
     
     # Normally this would scrape jobs, but for now we just convert them conceptually

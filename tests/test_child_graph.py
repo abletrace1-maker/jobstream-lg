@@ -1,5 +1,6 @@
-import pytest
-from src.child_graph import child_graph
+from langgraph.checkpoint.memory import MemorySaver
+
+from src.child_graph import child_builder, child_graph
 
 def test_child_graph_compiles():
     """Verify that the child subgraph compiles and has the correct nodes/edges."""
@@ -26,8 +27,6 @@ def test_child_graph_compiles():
     for node in expected_nodes:
         assert node in nodes
 
-from langgraph.checkpoint.memory import MemorySaver
-from src.child_graph import child_builder
 
 def test_child_graph_interrupt():
     """Verify that the child graph pauses at the interrupt node."""

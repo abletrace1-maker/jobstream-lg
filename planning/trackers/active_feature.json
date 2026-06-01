@@ -1,108 +1,186 @@
 {
   "project": "JobStream Agent",
-  "epicId": "E-01",
-  "featureId": "F-03",
-  "featureName": "Child Sub-Graph Orchestration & Checkpointing",
-  "description": "Implement the Child Sub-Graph to handle isolated execution per job, wire up stub nodes for the processing pipeline, and configure the LangGraph SqliteSaver checkpointer for Human-in-the-Loop interrupts.",
+  "epicId": "E-02",
+  "featureId": "F-06",
+  "featureName": "Resume to JSON Converter",
+  "description": "Convert user starter resumes from data/starter_resumes into strict BaseResumeSchema JSON files in data/json_resumes so the parent graph can load category-matched base resumes for downstream job processing.",
   "status": "DONE",
   "userStories": [
     {
       "id": "US-001",
-      "title": "Define Child Sub-Graph Structure with Stub Nodes",
-      "description": "As a backend developer, I want to define the child graph with stub nodes for Evaluate, Clarify, Strategy, Review, Apply, Cover Letter, and PDF compilation so that the core Map-Reduce execution pipeline exists.",
+      "title": "Convert a plain-text starter resume into strict base resume JSON",
+      "description": "As a strategic job seeker, I want to convert a text starter resume into the strict base resume JSON schema so that JobStream has a reliable source of truth for tailoring applications.",
       "acceptanceCriteria": [
-        "Given the child graph is being constructed, When adding nodes, Then stubs for evaluate_fit, clarification, strategy_generator, human_review, apply_changes, cover_letter, and pdf_compiler are added.",
-        "Given the nodes are added, When defining edges, Then they are linked sequentially from START to END (e.g. evaluate_fit -> clarification -> ...)."
+        "Given a valid data/starter_resumes/starter_engineering.txt file when the converter is run for the engineering category then data/json_resumes/base_resume_engineering.json is written.",
+        "Given the converted output when it is loaded through BaseResumeSchema then Pydantic validation succeeds without schema coercion hacks or dropped required fields.",
+        "Given resume bullet points in the starter text when conversion completes then all professional experience highlights are preserved without summarization or truncation.",
+        "Given contact, skills, professional experience, education, and other resume sections in the starter text when conversion completes then each section is mapped to the matching BaseResumeSchema fields.",
+        "Typecheck passes",
+        "uv run pytest passes",
+        "uv run ruff check /home/bobbysaini/workspace/langgraph-agents/jobstream-langgraph passes"
       ],
       "tasks": [
         {
           "id": "T-1",
-          "description": "Create src/nodes/child_nodes.py with stub functions for the 7 processing nodes that return empty state updates.",
+          "description": "Add a resume conversion module or node in the existing src structure that accepts raw resume text, category, and optional parser dependency injection.",
           "completed": true
         },
         {
           "id": "T-2",
-          "description": "Create src/child_graph.py (or update src/graph.py) to build child_graph using StateGraph(ChildGraphState).",
+          "description": "Implement a default text-to-BaseResumeSchema parser path that preserves all original bullet content and maps fields to the existing schema in src/schemas.py.",
           "completed": true
         },
         {
           "id": "T-3",
-          "description": "Add all child stub nodes and define a linear sequential edge flow.",
+          "description": "Write converted JSON to data/json_resumes/base_resume_[category].json using UTF-8 and deterministic indentation.",
           "completed": true
         },
         {
           "id": "T-4",
-          "description": "Write pytest to verify child_graph compiles successfully.",
+          "description": "Add unit tests with a representative text resume fixture that validates output against BaseResumeSchema and confirms bullet preservation.",
+          "completed": true
+        },
+        {
+          "id": "T-5",
+          "description": "Run uv run pytest and uv run ruff check /home/bobbysaini/workspace/langgraph-agents/jobstream-langgraph, fixing only issues introduced by this story.",
           "completed": true
         }
       ],
       "priority": 1,
       "status": "DONE",
-      "notes": "We only need stubs for now. The complex logic for Evaluate, Strategy, and HITL interrupts will be added in E-03 and E-04."
+      "notes": "Start with TXT as the smallest vertical slice before adding PDF/DOCX extraction. If using an LLM parser, keep it injectable/mocked in tests and use the cheap_parsing model configuration where applicable."
     },
     {
       "id": "US-002",
-      "title": "Configure SQLite Checkpointer for Child Graph",
-      "description": "As a systems engineer, I want to attach a SqliteSaver checkpointer to the compiled child graph so that long-running threads can persist state and pause at Human-in-the-Loop interrupts.",
+      "title": "Support PDF and DOCX starter resume extraction",
+      "description": "As a strategic job seeker, I want PDF and DOCX starter resumes converted into the same base resume JSON schema so that I can use my existing resume files without manually creating text copies.",
       "acceptanceCriteria": [
-        "Given the application runs, When initializing the checkpointer, Then a SQLite database connection is established at data/checkpoints.sqlite.",
-        "Given the checkpointer is available, When compiling the child graph, Then it is configured with checkpointer=sqlite_saver.",
-        "Given the child graph is compiled, When execution reaches clarification or human_review, Then it halts via the interrupt_before setting."
+        "Given starter_project_management.pdf exists in data/starter_resumes when the converter is run then extracted text is parsed and data/json_resumes/base_resume_project_management.json is produced.",
+        "Given starter_construction.docx exists in data/starter_resumes when the converter is run then extracted text is parsed and data/json_resumes/base_resume_construction.json is produced.",
+        "Given an unsupported starter resume extension when the converter is run then the converter raises a clear supported-format error and does not write an output file.",
+        "Given extracted text from PDF or DOCX conversion when output is produced then the same BaseResumeSchema validation guarantees from text conversion apply.",
+        "Typecheck passes",
+        "uv run pytest passes",
+        "uv run ruff check /home/bobbysaini/workspace/langgraph-agents/jobstream-langgraph passes"
       ],
       "tasks": [
         {
           "id": "T-1",
-          "description": "Update src/child_graph.py to initialize SqliteSaver using from_conn_string('data/checkpoints.sqlite'). Ensure the data/ directory is created if missing.",
+          "description": "Inspect existing project dependencies and add PDF/DOCX extraction libraries with uv only if no suitable dependency already exists.",
           "completed": true
         },
         {
           "id": "T-2",
-          "description": "Compile child_graph with the checkpointer and interrupt_before=['clarification', 'human_review'].",
+          "description": "Implement file text extraction adapters for .txt, .pdf, and .docx starter resumes behind a shared interface.",
           "completed": true
         },
         {
           "id": "T-3",
-          "description": "Write a test using MemorySaver (for testing) to demonstrate the graph pauses when reaching an interrupt node.",
+          "description": "Route extracted text through the existing resume conversion parser so every source type produces the same BaseResumeSchema output.",
+          "completed": true
+        },
+        {
+          "id": "T-4",
+          "description": "Add tests for supported extension routing and unsupported extension failure without relying on live LLM calls.",
+          "completed": true
+        },
+        {
+          "id": "T-5",
+          "description": "Run uv run pytest and uv run ruff check /home/bobbysaini/workspace/langgraph-agents/jobstream-langgraph, fixing only issues introduced by this story.",
           "completed": true
         }
       ],
       "priority": 2,
       "status": "DONE",
-      "notes": "Make sure to import SqliteSaver from langgraph.checkpoint.sqlite. MemorySaver can be used in unit tests to avoid disk I/O."
+      "notes": "Do not manually edit pyproject.toml for dependencies unless uv cannot perform the change. Tests should use small fixtures or mocked extraction where practical."
     },
     {
       "id": "US-003",
-      "title": "Connect Parent Graph to Child Graph via Send API",
-      "description": "As a graph architect, I want the parent graph to dispatch jobs directly to the compiled child graph so that end-to-end processing triggers the child logic.",
+      "title": "Batch discover starter resumes and load category-matched JSON resumes",
+      "description": "As a strategic job seeker with multiple resume categories, I want JobStream to discover starter_[category] files and produce category-matched base_resume_[category].json files so that pending jobs can be paired with the correct base resume.",
       "acceptanceCriteria": [
-        "Given the ParentGraph is compiled, When map_to_job_processor returns Send objects, Then the target node is the compiled child_graph.",
-        "Given the ParentGraph executes, When the conditional edge maps to the child subgraph, Then the child subgraph runs with isolated state."
+        "Given multiple files named starter_engineering.txt and starter_project_management.txt in data/starter_resumes when batch conversion is run then both data/json_resumes/base_resume_engineering.json and data/json_resumes/base_resume_project_management.json are produced.",
+        "Given generated files named base_resume_engineering.json and base_resume_project_management.json when load_config_and_resume reads data/json_resumes then base_resumes keys are engineering and project_management, not base_resume_engineering or base_resume_project_management.",
+        "Given a job tracker entry with category engineering when the parent graph state is loaded then the matching engineering base resume is available for dispatch to the child graph.",
+        "Given duplicate starter resumes for the same category when batch conversion is run then the converter fails clearly instead of silently overwriting an ambiguous category output.",
+        "Typecheck passes",
+        "uv run pytest passes",
+        "uv run ruff check /home/bobbysaini/workspace/langgraph-agents/jobstream-langgraph passes"
       ],
       "tasks": [
         {
           "id": "T-1",
-          "description": "Import the compiled child_graph into src/graph.py.",
+          "description": "Implement starter_[category].[ext] discovery in data/starter_resumes and strict category extraction from filenames.",
           "completed": true
         },
         {
           "id": "T-2",
-          "description": "Replace dummy_process_job in the ParentGraph builder with builder.add_node('child_graph', child_graph).",
+          "description": "Implement batch conversion that writes base_resume_[category].json for every discovered starter resume.",
           "completed": true
         },
         {
           "id": "T-3",
-          "description": "Update map_to_job_processor to use Send('child_graph', child_state) instead of Send('process_job', child_state).",
+          "description": "Update load_config_and_resume so data/json_resumes/base_resume_[category].json files populate base_resumes using the raw category key expected by JobTrackerEntry.category.",
           "completed": true
         },
         {
           "id": "T-4",
-          "description": "Write/update integration test to verify the Parent graph correctly dispatches to the Child graph stubs without errors.",
+          "description": "Add tests for multi-category discovery, output naming, duplicate category failure, and parent loader category keys.",
+          "completed": true
+        },
+        {
+          "id": "T-5",
+          "description": "Run uv run pytest and uv run ruff check /home/bobbysaini/workspace/langgraph-agents/jobstream-langgraph, fixing only issues introduced by this story.",
           "completed": true
         }
       ],
       "priority": 3,
       "status": "DONE",
-      "notes": "Verify that LangGraph's Send API properly executes a compiled subgraph as a node."
+      "notes": "This story connects the converter to existing parent graph loading behavior and should preserve the documented data/json_resumes/base_resume_[category].json naming convention."
+    },
+    {
+      "id": "US-004",
+      "title": "Prevent corrupt resume JSON writes on invalid conversion output",
+      "description": "As a strategic job seeker, I want invalid or incomplete resume conversions to fail safely so that JobStream never uses corrupt base resume JSON for application tailoring.",
+      "acceptanceCriteria": [
+        "Given parser output missing a required BaseResumeSchema field when conversion is attempted then conversion fails with a clear validation error and no output JSON is written.",
+        "Given an existing valid base_resume_[category].json when a later conversion for that category fails then the existing file remains unchanged.",
+        "Given parser output with extra unsupported top-level fields when conversion is attempted then unsupported fields are not relied on by downstream graph state and validation behavior is explicitly tested.",
+        "Given a conversion failure when batch conversion is running then the failure is reported with category and source path context without masking other successful category conversions unless the failure mode is ambiguous or unsafe.",
+        "Typecheck passes",
+        "uv run pytest passes",
+        "uv run ruff check /home/bobbysaini/workspace/langgraph-agents/jobstream-langgraph passes"
+      ],
+      "tasks": [
+        {
+          "id": "T-1",
+          "description": "Add atomic write behavior for resume JSON output so failed validation cannot leave a partial file behind.",
+          "completed": true
+        },
+        {
+          "id": "T-2",
+          "description": "Validate converted data with BaseResumeSchema before any write to data/json_resumes.",
+          "completed": true
+        },
+        {
+          "id": "T-3",
+          "description": "Define and use clear converter exceptions that include category and source path context.",
+          "completed": true
+        },
+        {
+          "id": "T-4",
+          "description": "Add tests proving missing required fields fail safely, existing JSON is preserved on failed overwrite, and batch failures report useful context.",
+          "completed": true
+        },
+        {
+          "id": "T-5",
+          "description": "Run uv run pytest and uv run ruff check /home/bobbysaini/workspace/langgraph-agents/jobstream-langgraph, fixing only issues introduced by this story.",
+          "completed": true
+        }
+      ],
+      "priority": 4,
+      "status": "DONE",
+      "notes": "This is a safety story for hallucination and schema-drift prevention. Keep live LLM calls out of tests by injecting deterministic parser outputs."
     }
   ]
 }

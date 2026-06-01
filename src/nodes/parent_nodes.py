@@ -44,7 +44,8 @@ def load_config_and_resume(state: ParentGraphState) -> Dict[str, Any]:
     if os.path.exists(resumes_dir):
         for filename in os.listdir(resumes_dir):
             if filename.endswith(".json"):
-                category = filename[:-5]
+                stem = filename[:-5]
+                category = stem.removeprefix("base_resume_")
                 filepath = os.path.join(resumes_dir, filename)
                 try:
                     with open(filepath, "r", encoding="utf-8") as f:
