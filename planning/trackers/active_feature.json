@@ -4,7 +4,7 @@
   "featureId": "F-10",
   "featureName": "Streamlit Setup & Checkpoint Reader",
   "description": "Initialize the Streamlit UI, connect to the LangGraph SQLite checkpoints, and display the synced Job Tracker dashboard.",
-  "status": "IN_PROGRESS",
+  "status": "DONE",
   "userStories": [
     {
       "id": "US-001",
@@ -40,13 +40,13 @@
         "and Then the updated status is written back to job_tracker.json"
       ],
       "tasks": [
-        {"id": "T-1", "description": "Implement function to read data/job_tracker.json", "completed": false},
-        {"id": "T-2", "description": "Implement function to query SqliteSaver for the latest state of each job (using job_id as thread_id)", "completed": false},
-        {"id": "T-3", "description": "Implement write-back function to update job_tracker.json with the latest graph statuses", "completed": false},
-        {"id": "T-4", "description": "Display the merged job data in a Streamlit dataframe or UI list on the main page", "completed": false}
+        {"id": "T-1", "description": "Implement function to read data/job_tracker.json", "completed": true},
+        {"id": "T-2", "description": "Implement function to query SqliteSaver for the latest state of each job (using job_id as thread_id)", "completed": true},
+        {"id": "T-3", "description": "Implement write-back function to update job_tracker.json with the latest graph statuses", "completed": true},
+        {"id": "T-4", "description": "Display the merged job data in a Streamlit dataframe or UI list on the main page", "completed": true}
       ],
       "priority": 2,
-      "status": "PENDING",
+      "status": "DONE",
       "notes": ""
     }
   ]
