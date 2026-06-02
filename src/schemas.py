@@ -68,7 +68,10 @@ class ClarificationQuestion(BaseModel):
         return self
 
 class EvaluateFitOutput(BaseModel):
-    questions: List[ClarificationQuestion] = Field(default_factory=list)
+    fit_score: int = Field(description="1-10 score of how well the resume matches the job", ge=1, le=10)
+    should_apply: bool = Field(description="True if fit_score >= 3, False otherwise")
+    missing_requirements: List[str] = Field(default_factory=list, description="Key job requirements entirely missing from the resume")
+    questions: List[ClarificationQuestion] = Field(default_factory=list, description="Questions for the user about missing context")
 
 class ResumeChange(BaseModel):
     action: str

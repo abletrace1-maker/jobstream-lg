@@ -203,7 +203,8 @@ def test_parent_to_child_dispatch(dummy_base_resume):
         
         from src.schemas import EvaluateFitOutput, ClarificationQuestion
         mock_response = EvaluateFitOutput(
-            questions=[ClarificationQuestion(id="1", type="text", question="Q", options=[])]
+            questions=[ClarificationQuestion(id="1", type="text", question="Q", options=[])],
+            fit_score=8, should_apply=True, missing_requirements=[]
         )
         
         mock_structured.return_value = mock_response

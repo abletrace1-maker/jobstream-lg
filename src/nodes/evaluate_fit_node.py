@@ -7,8 +7,12 @@ from src.schemas import EvaluateFitOutput
 # Define the prompt (T-1)
 EVALUATE_FIT_PROMPT = """You are an expert technical recruiter and career coach.
 Your task is to evaluate the fit between the candidate's base resume and the job description.
-Identify any missing context or clarification needed to tailor the resume effectively.
-If there are missing details that could strengthen the application, formulate clarification questions.
+
+Key Directives:
+1. Scoring: Provide a realistic 1-10 fit score. If the score is below a threshold of 3/10, set should_apply to false.
+2. Gap Analysis: Identify key job requirements that are completely missing from the base resume.
+3. Question Generation: For every missing critical requirement or ambiguous overlap, generate a clarification question.
+4. Always Provide LLM Option: Every multiple-choice question MUST include an option that says "Let the LLM decide" (handled by schema validation, but ensure your content leaves room for it).
 
 Base Resume:
 {base_resume}
@@ -36,8 +40,15 @@ def evaluate_fit(state: ChildGraphState) -> Dict[str, Any]:
         "job_details": state.get("job_details", {})
     })
     
-    # For US-003, we return the parsed questions and update status
-    questions = response.questions if response else []
-    status = "NEEDS_CLARIFICATION" if questions else "EVALUATING"
+    # For US-001/US-002, we return the parsed questions and update status
+    if not response:
+        return {"status": "EVALUATING", "clarification_questions": []}
+
+    if not response.should_apply:
+        status = "REJECTED"
+    elif response.questions:
+        status = "NEEDS_CLARIFICATION"
+    else:
+        status = "EVALUATING"
     
-    return {"status": status, "clarification_questions": questions}
+    return {"status": status, "clarification_questions": response.questions}

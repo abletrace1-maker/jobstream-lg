@@ -105,7 +105,7 @@ def test_child_graph_no_clarification_path_reaches_human_review_with_strategy_st
     ):
         evaluate_instance = mock.MagicMock()
         evaluate_structured = mock.MagicMock()
-        evaluate_response = EvaluateFitOutput(questions=[])
+        evaluate_response = EvaluateFitOutput(questions=[], fit_score=8, should_apply=True, missing_requirements=[])
         evaluate_structured.return_value = evaluate_response
         evaluate_structured.invoke.return_value = evaluate_response
         evaluate_instance.with_structured_output.return_value = evaluate_structured
@@ -178,7 +178,7 @@ def test_child_graph_human_review_approval_triggers_apply_changes():
     ):
         evaluate_instance = mock.MagicMock()
         evaluate_structured = mock.MagicMock()
-        eval_resp = EvaluateFitOutput(questions=[])
+        eval_resp = EvaluateFitOutput(questions=[], fit_score=8, should_apply=True, missing_requirements=[])
         evaluate_structured.invoke.return_value = eval_resp
         evaluate_structured.return_value = eval_resp
         evaluate_instance.with_structured_output.return_value = evaluate_structured
@@ -249,7 +249,8 @@ def test_child_graph_clarification_path_interrupts_before_strategy_generation():
         evaluate_instance = mock.MagicMock()
         evaluate_structured = mock.MagicMock()
         evaluate_response = EvaluateFitOutput(
-            questions=[ClarificationQuestion(id="1", type="text", question="Q", options=[])]
+            questions=[ClarificationQuestion(id="1", type="text", question="Q", options=[])],
+            fit_score=8, should_apply=True, missing_requirements=[]
         )
         evaluate_structured.return_value = evaluate_response
         evaluate_structured.invoke.return_value = evaluate_response

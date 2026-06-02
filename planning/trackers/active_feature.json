@@ -1,24 +1,26 @@
 {
   "project": "JobStream Agent v2 Upgrade",
-  "epicId": "E-01",
-  "featureId": "F-03",
-  "featureName": "Configuration Hub",
-  "description": "Build a centralized config.yaml configuration mechanism to control agent parameters without hardcoding.",
+  "epicId": "E-02",
+  "featureId": "F-04",
+  "featureName": "Evaluate Fit Prompt & Schema Alignment",
+  "description": "Align the EvaluateFitNode prompt and schema to compare the base resume with the job details, and safely generate clarification questions without hallucinations.",
   "status": "IN_PROGRESS",
   "userStories": [
     {
       "id": "US-001",
-      "title": "Create centralized config.yaml and default settings",
-      "description": "As a JobStream operator, I want a centralized config.yaml file so that I can manage agent parameters without changing code.",
+      "title": "Evaluate Fit using gpt-4o",
+      "description": "As a strategic job seeker, I want the system to strictly compare my base resume against the specific job details so that it can evaluate my fit and identify any gaps before tailoring.",
       "acceptanceCriteria": [
-        "Scenario: System needs configuration",
-        "Given the JobStream agent is deployed",
-        "When the operator looks for configuration options",
-        "Then they find config/config.yaml with llm and path settings"
+        "Scenario: System evaluates resume fit",
+        "Given the base_resume and job_details are loaded in the Child Graph State",
+        "When the EvaluateFitNode is executed",
+        "Then it invokes gpt-4o with the alignment prompt",
+        "and Then it updates the graph state with the evaluated fit status"
       ],
       "tasks": [
-        {"id": "T-1", "description": "Create the config directory if it does not exist", "completed": true},
-        {"id": "T-2", "description": "Create config/config.yaml with default schema for llm and paths as defined in the TRD", "completed": true}
+        {"id": "T-1", "description": "Define the Langchain PromptTemplate for the EvaluateFitNode", "completed": true},
+        {"id": "T-2", "description": "Implement the gpt-4o LLM structured output call in EvaluateFitNode", "completed": true},
+        {"id": "T-3", "description": "Write a unit test for the basic fit evaluation flow", "completed": true}
       ],
       "priority": 1,
       "status": "DONE",
@@ -26,22 +28,24 @@
     },
     {
       "id": "US-002",
-      "title": "Parse and inject config.yaml in load_config_and_resume",
-      "description": "As a JobStream operator, I want the agent to automatically load config.yaml into its state when it starts so that all subsequent nodes can access the configuration.",
+      "title": "Generate Clarification Questions for HITL",
+      "description": "As a strategic job seeker, I want the system to generate clarification questions for missing context so that I can provide accurate details instead of the AI hallucinating.",
       "acceptanceCriteria": [
-        "Scenario: Agent graph initialization",
-        "Given config/config.yaml exists and is valid",
-        "When the parent graph starts and runs load_config_and_resume",
-        "Then the parsed YAML content is returned under the 'config' state key"
+        "Scenario: System identifies missing context",
+        "Given the EvaluateFitNode detects gaps in the candidate's resume for the job requirements",
+        "When the LLM formulates clarification questions",
+        "Then the output conforms strictly to the ClarificationQuestion schema",
+        "and Then every multiple_choice question includes a 'Let LLM decide' option",
+        "and Then it updates the status to NEEDS_CLARIFICATION"
       ],
       "tasks": [
-        {"id": "T-1", "description": "Import yaml module in src/nodes/parent_nodes.py", "completed": true},
-        {"id": "T-2", "description": "Add logic in load_config_and_resume to read and parse config/config.yaml", "completed": true},
-        {"id": "T-3", "description": "Update the return dictionary to pass the parsed config into the 'config' state key", "completed": true},
-        {"id": "T-4", "description": "Add error handling to fallback to an empty dict if the file is missing or invalid", "completed": true}
+        {"id": "T-1", "description": "Create the ClarificationQuestion Pydantic schema per the TRD", "completed": false},
+        {"id": "T-2", "description": "Update the EvaluateFitNode prompt to instruct the LLM to generate clarification questions when gaps are found", "completed": false},
+        {"id": "T-3", "description": "Ensure the system strictly enforces the inclusion of the 'Let LLM decide' option in multiple_choice options", "completed": false},
+        {"id": "T-4", "description": "Write a unit test simulating a resume with missing context to verify question generation", "completed": false}
       ],
       "priority": 2,
-      "status": "DONE",
+      "status": "PENDING",
       "notes": ""
     }
   ]
