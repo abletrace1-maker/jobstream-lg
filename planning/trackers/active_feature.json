@@ -1,0 +1,51 @@
+{
+  "project": "JobStream Agent v2 Upgrade",
+  "epicId": "E-01",
+  "featureId": "F-01",
+  "featureName": "CLI Entry Point",
+  "description": "Create a main.py CLI script at the root to wrap parent_graph.invoke().",
+  "status": "IN_PROGRESS",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Create main.py CLI Entry Point",
+      "description": "As a JobStream operator, I want to run the application via a simple main.py entry point so that I can trigger the job pipeline from the command line without manually editing Python files.",
+      "acceptanceCriteria": [
+        "Scenario: Running the JobStream map-reduce pipeline from the terminal",
+        "Given the system is configured and data/job_tracker.json exists",
+        "When I execute `python main.py` or `uv run main.py`",
+        "Then the script configures the checkpointer and invokes the `parent_graph`"
+      ],
+      "tasks": [
+        {
+          "id": "T-1",
+          "description": "Create main.py at the project root",
+          "completed": true
+        },
+        {
+          "id": "T-2",
+          "description": "Import parent_graph from src.graph",
+          "completed": true
+        },
+        {
+          "id": "T-3",
+          "description": "Set up SqliteSaver checkpointer for state persistence (e.g. data/checkpoints.sqlite)",
+          "completed": true
+        },
+        {
+          "id": "T-4",
+          "description": "Invoke the parent_graph with initial empty state and thread config",
+          "completed": true
+        },
+        {
+          "id": "T-5",
+          "description": "Add basic terminal output/logging to indicate the start and end of processing",
+          "completed": true
+        }
+      ],
+      "priority": 1,
+      "status": "DONE",
+      "notes": ""
+    }
+  ]
+}
