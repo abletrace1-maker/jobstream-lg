@@ -1,8 +1,12 @@
 import streamlit as st
 import sqlite3
 import os
+import sys
 import json
 import pandas as pd
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+
 from src.schemas import ClarificationQuestion
 from langgraph.checkpoint.sqlite import SqliteSaver
 from src.child_graph import child_graph

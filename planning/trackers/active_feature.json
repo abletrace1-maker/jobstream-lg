@@ -1,0 +1,68 @@
+{
+  "project": "JobStream Agent v2 Upgrade",
+  "epicId": "E-01",
+  "featureId": "F-02",
+  "featureName": "Streamlit UI Enhancements",
+  "description": "Fix Streamlit import path errors and add a background-threaded sidebar button to trigger the parent_graph batch ingestion directly from the UI.",
+  "status": "IN_PROGRESS",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Resolve UI Load Crash (ModuleNotFoundError)",
+      "description": "As a JobStream Operator, I want the Streamlit UI to resolve its own module paths correctly, so that I can launch the app directly without encountering a ModuleNotFoundError.",
+      "acceptanceCriteria": [
+        "Scenario: Operator launches Streamlit app",
+        "Given the JobStream repository is cloned and environment is set up",
+        "When the operator runs `uv run streamlit run src/ui/app.py`",
+        "Then the UI loads successfully without a `ModuleNotFoundError` for `src` modules."
+      ],
+      "tasks": [
+        {
+          "id": "T-1",
+          "description": "Add sys.path append logic to the top of src/ui/app.py before local imports.",
+          "completed": true
+        },
+        {
+          "id": "T-2",
+          "description": "Verify UI loads via uv run streamlit run src/ui/app.py.",
+          "completed": true
+        }
+      ],
+      "priority": 1,
+      "status": "DONE",
+      "notes": "TRD: Insert sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'))) before local imports."
+    },
+    {
+      "id": "US-002",
+      "title": "Start Job Processing Button with Background Threading",
+      "description": "As a JobStream Operator, I want to click a 'Start Job Processing' button in the sidebar that runs the LangGraph pipeline in the background, so that I can trigger batch ingestion without locking up the UI.",
+      "acceptanceCriteria": [
+        "Scenario: Operator triggers the job ingestion pipeline from UI",
+        "Given the Streamlit UI is loaded",
+        "When the operator clicks the 'Start Job Processing' button in the sidebar",
+        "Then the `parent_graph` is invoked in a background thread",
+        "and Then the UI remains responsive and does not freeze waiting for the pipeline to finish."
+      ],
+      "tasks": [
+        {
+          "id": "T-1",
+          "description": "Add a Streamlit sidebar button labeled 'Start Job Processing' in src/ui/app.py.",
+          "completed": false
+        },
+        {
+          "id": "T-2",
+          "description": "Create a background thread function to invoke parent_graph with {\"config\": {}}.",
+          "completed": false
+        },
+        {
+          "id": "T-3",
+          "description": "Wire the sidebar button to trigger the background thread.",
+          "completed": false
+        }
+      ],
+      "priority": 2,
+      "status": "PENDING",
+      "notes": "TRD requires using a background thread so Streamlit doesn't await the synchronous finish and lock up."
+    }
+  ]
+}
