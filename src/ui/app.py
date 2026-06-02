@@ -4,11 +4,13 @@ import os
 import sys
 import json
 import pandas as pd
+import threading
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
 from src.schemas import ClarificationQuestion
 from langgraph.checkpoint.sqlite import SqliteSaver
+from src.graph import parent_graph
 from src.child_graph import child_graph
 from src.state import JobStatus
 
@@ -85,9 +87,30 @@ def render_clarification_questions(questions):
             answers[q.id] = ans
     return answers
 
+def run_parent_graph_bg():
+    """Background thread function to invoke the parent_graph"""
+    try:
+        saver, conn = get_checkpointer()
+        graph_with_memory = parent_graph.builder.compile(checkpointer=saver)
+        
+        # T-2: Invoke parent_graph with config
+        config = {"configurable": {"thread_id": "batch_ingestion"}}
+        graph_with_memory.invoke({"config": {}}, config)
+    except Exception as e:
+        print(f"Error in background parent_graph thread: {e}")
+
 def main():
     st.title("🌊 JobStream Application Tracker")
     st.markdown("Welcome to the JobStream AI Agent Dashboard. This system manages your job applications via LangGraph.")
+
+    # US-002: Start Job Processing Button in Sidebar
+    with st.sidebar:
+        st.header("Actions")
+        if st.button("Start Job Processing", type="primary"):
+            # T-3: Wire button to trigger background thread
+            bg_thread = threading.Thread(target=run_parent_graph_bg, daemon=True)
+            bg_thread.start()
+            st.success("Job processing started in the background!")
 
     # T-3: Add UI element to display database connection status
     st.subheader("System Status")

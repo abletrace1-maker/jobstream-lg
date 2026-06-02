@@ -47,21 +47,21 @@
         {
           "id": "T-1",
           "description": "Add a Streamlit sidebar button labeled 'Start Job Processing' in src/ui/app.py.",
-          "completed": false
+          "completed": true
         },
         {
           "id": "T-2",
           "description": "Create a background thread function to invoke parent_graph with {\"config\": {}}.",
-          "completed": false
+          "completed": true
         },
         {
           "id": "T-3",
           "description": "Wire the sidebar button to trigger the background thread.",
-          "completed": false
+          "completed": true
         }
       ],
       "priority": 2,
-      "status": "PENDING",
+      "status": "DONE",
       "notes": "TRD requires using a background thread so Streamlit doesn't await the synchronous finish and lock up."
     }
   ]
