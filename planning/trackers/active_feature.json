@@ -19,10 +19,26 @@
         "and Then the resulting PDF file exists on disk."
       ],
       "tasks": [
-        {"id": "T-1", "description": "Add `weasyprint` and `jinja2` to pyproject.toml via uv", "completed": true},
-        {"id": "T-2", "description": "Create src/templates/resume_template.html (Jinja2) for clean ATS-friendly layout", "completed": true},
-        {"id": "T-3", "description": "Create src/utils/pdf_compiler.py and implement compile_resume_pdf(resume_data: dict, output_path: str)", "completed": true},
-        {"id": "T-4", "description": "Write unit tests for compile_resume_pdf in tests/test_pdf_compiler.py", "completed": true}
+        {
+          "id": "T-1",
+          "description": "Add `weasyprint` and `jinja2` to pyproject.toml via uv",
+          "completed": true
+        },
+        {
+          "id": "T-2",
+          "description": "Create src/templates/resume_template.html (Jinja2) for clean ATS-friendly layout",
+          "completed": true
+        },
+        {
+          "id": "T-3",
+          "description": "Create src/utils/pdf_compiler.py and implement compile_resume_pdf(resume_data: dict, output_path: str)",
+          "completed": true
+        },
+        {
+          "id": "T-4",
+          "description": "Write unit tests for compile_resume_pdf in tests/test_pdf_compiler.py",
+          "completed": true
+        }
       ],
       "priority": 1,
       "status": "DONE",
@@ -41,13 +57,29 @@
         "and Then the resulting PDF file exists on disk."
       ],
       "tasks": [
-        {"id": "T-1", "description": "Add `markdown` library to pyproject.toml via uv", "completed": false},
-        {"id": "T-2", "description": "Create src/templates/cover_letter_template.html (Jinja2) for the cover letter layout", "completed": false},
-        {"id": "T-3", "description": "Implement compile_cover_letter_pdf(markdown_text: str, output_path: str) in src/utils/pdf_compiler.py", "completed": false},
-        {"id": "T-4", "description": "Write unit tests for compile_cover_letter_pdf in tests/test_pdf_compiler.py", "completed": false}
+        {
+          "id": "T-1",
+          "description": "Add `markdown` library to pyproject.toml via uv",
+          "completed": true
+        },
+        {
+          "id": "T-2",
+          "description": "Create src/templates/cover_letter_template.html (Jinja2) for the cover letter layout",
+          "completed": true
+        },
+        {
+          "id": "T-3",
+          "description": "Implement compile_cover_letter_pdf(markdown_text: str, output_path: str) in src/utils/pdf_compiler.py",
+          "completed": true
+        },
+        {
+          "id": "T-4",
+          "description": "Write unit tests for compile_cover_letter_pdf in tests/test_pdf_compiler.py",
+          "completed": true
+        }
       ],
       "priority": 2,
-      "status": "PENDING",
+      "status": "DONE",
       "notes": ""
     },
     {
@@ -63,11 +95,31 @@
         "and Then it returns a state update containing resume_pdf_path and cover_letter_pdf_path."
       ],
       "tasks": [
-        {"id": "T-1", "description": "Update pdf_compiler in src/nodes/child_nodes.py to call the new PDF utilities", "completed": false},
-        {"id": "T-2", "description": "Ensure the node creates data/output/ if it doesn't exist", "completed": false},
-        {"id": "T-3", "description": "Generate file names using job_id (e.g., data/output/{job_id}_resume.pdf)", "completed": false},
-        {"id": "T-4", "description": "Update the node to return resume_pdf_path and cover_letter_pdf_path", "completed": false},
-        {"id": "T-5", "description": "Write integration tests for the pdf_compiler node", "completed": false}
+        {
+          "id": "T-1",
+          "description": "Update pdf_compiler in src/nodes/child_nodes.py to call the new PDF utilities",
+          "completed": false
+        },
+        {
+          "id": "T-2",
+          "description": "Ensure the node creates data/output/ if it doesn't exist",
+          "completed": false
+        },
+        {
+          "id": "T-3",
+          "description": "Generate file names using job_id (e.g., data/output/{job_id}_resume.pdf)",
+          "completed": false
+        },
+        {
+          "id": "T-4",
+          "description": "Update the node to return resume_pdf_path and cover_letter_pdf_path",
+          "completed": false
+        },
+        {
+          "id": "T-5",
+          "description": "Write integration tests for the pdf_compiler node",
+          "completed": false
+        }
       ],
       "priority": 3,
       "status": "PENDING",
