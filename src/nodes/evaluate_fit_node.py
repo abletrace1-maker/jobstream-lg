@@ -1,5 +1,5 @@
 from typing import Dict, Any
-from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from src.state import ChildGraphState
 from src.schemas import EvaluateFitOutput
@@ -25,7 +25,7 @@ def evaluate_fit(state: ChildGraphState) -> Dict[str, Any]:
     """
     Evaluate fit between base resume and job description, and generate structured clarification questions.
     """
-    llm = ChatOpenAI(model="gpt-4o", temperature=0)
+    llm = ChatGoogleGenerativeAI(model="gemini-2.5-pro", temperature=0)
     structured_llm = llm.with_structured_output(EvaluateFitOutput)
     
     prompt = ChatPromptTemplate.from_messages([

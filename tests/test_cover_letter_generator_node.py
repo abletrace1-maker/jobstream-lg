@@ -34,10 +34,10 @@ def sample_job_details():
     )
 
 def test_cover_letter_generator(sample_resume, sample_job_details):
-    # We patch invoke on the ChatOpenAI class itself
+    # We patch invoke on the ChatGoogleGenerativeAI class itself
     from langchain_core.messages import AIMessage
     with patch.dict("os.environ", {"OPENAI_API_KEY": "fake-api-key"}):
-        with patch("langchain_openai.ChatOpenAI.invoke", return_value=AIMessage(content="# Cover Letter\n\nDear Hiring Manager,\n\nI am applying for the Software Engineer role at Tech Corp.\n\nSincerely,\nJane Doe")):
+        with patch("langchain_google_genai.ChatGoogleGenerativeAI.invoke", return_value=AIMessage(content="# Cover Letter\n\nDear Hiring Manager,\n\nI am applying for the Software Engineer role at Tech Corp.\n\nSincerely,\nJane Doe")):
             state = {
                 "tailored_resume": sample_resume,
                 "job_details": sample_job_details,

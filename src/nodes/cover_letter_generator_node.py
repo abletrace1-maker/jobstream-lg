@@ -3,7 +3,7 @@ from typing import Any, Dict
 
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 from pydantic import BaseModel
 
 from src.state import ChildGraphState
@@ -32,7 +32,7 @@ def _to_json(value: Any) -> str:
     return json.dumps(value, indent=2, default=str)
 
 def cover_letter_generator(state: ChildGraphState) -> Dict[str, Any]:
-    llm = ChatOpenAI(model="gpt-4o", temperature=0)
+    llm = ChatGoogleGenerativeAI(model="gemini-2.5-pro", temperature=0)
     
     prompt = ChatPromptTemplate.from_messages(
         [

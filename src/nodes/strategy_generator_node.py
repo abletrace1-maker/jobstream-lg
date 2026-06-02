@@ -3,7 +3,7 @@ import re
 from typing import Any, Dict
 
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 from pydantic import BaseModel
 
 from src.schemas import ResumeChange, ResumeDiffSchema, StrategyGeneratorOutput
@@ -206,7 +206,7 @@ def _validate_resume_diffs(
 
 def strategy_generator(state: ChildGraphState) -> Dict[str, Any]:
     constraints = _get_resume_constraints(state)
-    llm = ChatOpenAI(model="gpt-4o", temperature=0)
+    llm = ChatGoogleGenerativeAI(model="gemini-2.5-pro", temperature=0)
     structured_llm = llm.with_structured_output(StrategyGeneratorOutput)
 
     prompt = ChatPromptTemplate.from_messages(

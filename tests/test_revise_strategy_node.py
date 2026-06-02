@@ -80,7 +80,7 @@ def _output(change: dict | None = None) -> StrategyGeneratorOutput:
 
 
 def test_revise_strategy_returns_updated_markdown_and_diffs_and_clears_feedback():
-    with patch("src.nodes.revise_strategy_node.ChatOpenAI") as mock_chat:
+    with patch("src.nodes.revise_strategy_node.ChatGoogleGenerativeAI") as mock_chat:
         mock_instance = MagicMock()
         mock_structured = MagicMock()
         mock_structured.invoke.return_value = _output()
@@ -98,7 +98,7 @@ def test_revise_strategy_returns_updated_markdown_and_diffs_and_clears_feedback(
 
 
 def test_revise_strategy_prompt_includes_previous_strategy_diffs_and_feedback():
-    with patch("src.nodes.revise_strategy_node.ChatOpenAI") as mock_chat:
+    with patch("src.nodes.revise_strategy_node.ChatGoogleGenerativeAI") as mock_chat:
         mock_instance = MagicMock()
         mock_structured = MagicMock()
         mock_structured.invoke.return_value = _output()

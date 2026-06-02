@@ -41,7 +41,7 @@ def test_evaluate_fit_node_no_questions():
         cover_letter_pdf_path=""
     )
     
-    with patch("src.nodes.evaluate_fit_node.ChatOpenAI") as mock_chat:
+    with patch("src.nodes.evaluate_fit_node.ChatGoogleGenerativeAI") as mock_chat:
         mock_instance = MagicMock()
         mock_chat.return_value = mock_instance
         
@@ -93,7 +93,7 @@ def test_evaluate_fit_node_with_questions():
         cover_letter_pdf_path=""
     )
     
-    with patch("src.nodes.evaluate_fit_node.ChatOpenAI") as mock_chat:
+    with patch("src.nodes.evaluate_fit_node.ChatGoogleGenerativeAI") as mock_chat:
         mock_instance = MagicMock()
         mock_chat.return_value = mock_instance
         
@@ -152,7 +152,7 @@ def test_evaluate_fit_node_rejected():
         cover_letter_pdf_path=""
     )
     
-    with patch("src.nodes.evaluate_fit_node.ChatOpenAI") as mock_chat:
+    with patch("src.nodes.evaluate_fit_node.ChatGoogleGenerativeAI") as mock_chat:
         mock_instance = MagicMock()
         mock_chat.return_value = mock_instance
         
@@ -210,7 +210,7 @@ def test_evaluate_fit_missing_context():
         cover_letter_pdf_path=""
     )
     
-    with patch("src.nodes.evaluate_fit_node.ChatOpenAI") as mock_chat:
+    with patch("src.nodes.evaluate_fit_node.ChatGoogleGenerativeAI") as mock_chat:
         mock_instance = MagicMock()
         mock_chat.return_value = mock_instance
         

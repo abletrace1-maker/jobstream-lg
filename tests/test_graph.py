@@ -133,7 +133,7 @@ def test_parent_graph_compiles_and_has_correct_nodes():
     assert "child_graph" in nodes
 
 def test_parent_graph_run(dummy_base_resume):
-    with mock.patch("src.nodes.evaluate_fit_node.ChatOpenAI"):
+    with mock.patch("src.nodes.evaluate_fit_node.ChatGoogleGenerativeAI"):
         # Quick execution test of the parent graph structure
         job1 = JobDetailsSchema(
             job_title="Software Engineer",
@@ -194,7 +194,7 @@ def test_parent_to_child_dispatch(dummy_base_resume):
     
     config = {"configurable": {"thread_id": "integration-test-1"}}
     
-    with mock.patch("src.nodes.evaluate_fit_node.ChatOpenAI") as mock_chat:
+    with mock.patch("src.nodes.evaluate_fit_node.ChatGoogleGenerativeAI") as mock_chat:
         mock_instance = mock.MagicMock()
         mock_chat.return_value = mock_instance
         

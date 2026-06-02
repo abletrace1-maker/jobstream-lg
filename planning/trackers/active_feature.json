@@ -19,9 +19,21 @@
         "Then the model configuration supports specifying `gemini-2.5-pro`"
       ],
       "tasks": [
-        {"id": "T-1", "description": "Run `uv add langchain-google-genai`", "completed": true},
-        {"id": "T-2", "description": "Update `config/config.yaml` to set the default model to `gemini-2.5-pro` (and `temperature: 0` if applicable)", "completed": true},
-        {"id": "T-3", "description": "Update config loading utilities (if any) to expect `GOOGLE_API_KEY`", "completed": true}
+        {
+          "id": "T-1",
+          "description": "Run `uv add langchain-google-genai`",
+          "completed": true
+        },
+        {
+          "id": "T-2",
+          "description": "Update `config/config.yaml` to set the default model to `gemini-2.5-pro` (and `temperature: 0` if applicable)",
+          "completed": true
+        },
+        {
+          "id": "T-3",
+          "description": "Update config loading utilities (if any) to expect `GOOGLE_API_KEY`",
+          "completed": true
+        }
       ],
       "priority": 1,
       "status": "DONE",
@@ -39,14 +51,34 @@
         "and Then all tests pass with the updated mocked GenAI class"
       ],
       "tasks": [
-        {"id": "T-1", "description": "Refactor `src/nodes/evaluate_fit_node.py` to use `ChatGoogleGenerativeAI`", "completed": false},
-        {"id": "T-2", "description": "Refactor `src/nodes/strategy_generator_node.py` to use `ChatGoogleGenerativeAI`", "completed": false},
-        {"id": "T-3", "description": "Refactor `src/nodes/revise_strategy_node.py` and `src/nodes/cover_letter_generator_node.py` to use `ChatGoogleGenerativeAI`", "completed": false},
-        {"id": "T-4", "description": "Update all associated test files in `tests/` to expect `ChatGoogleGenerativeAI`", "completed": false},
-        {"id": "T-5", "description": "Run `uv run pytest` to ensure all tests pass", "completed": false}
+        {
+          "id": "T-1",
+          "description": "Refactor `src/nodes/evaluate_fit_node.py` to use `ChatGoogleGenerativeAI`",
+          "completed": true
+        },
+        {
+          "id": "T-2",
+          "description": "Refactor `src/nodes/strategy_generator_node.py` to use `ChatGoogleGenerativeAI`",
+          "completed": true
+        },
+        {
+          "id": "T-3",
+          "description": "Refactor `src/nodes/revise_strategy_node.py` and `src/nodes/cover_letter_generator_node.py` to use `ChatGoogleGenerativeAI`",
+          "completed": true
+        },
+        {
+          "id": "T-4",
+          "description": "Update all associated test files in `tests/` to expect `ChatGoogleGenerativeAI`",
+          "completed": true
+        },
+        {
+          "id": "T-5",
+          "description": "Run `uv run pytest` to ensure all tests pass",
+          "completed": true
+        }
       ],
       "priority": 2,
-      "status": "PENDING",
+      "status": "DONE",
       "notes": ""
     }
   ]

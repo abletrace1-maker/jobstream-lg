@@ -100,8 +100,8 @@ def test_child_graph_no_clarification_path_reaches_human_review_with_strategy_st
     config = {"configurable": {"thread_id": "child-graph-no-clarification"}}
 
     with (
-        mock.patch("src.nodes.evaluate_fit_node.ChatOpenAI") as mock_evaluate_chat,
-        mock.patch("src.nodes.strategy_generator_node.ChatOpenAI") as mock_strategy_chat,
+        mock.patch("src.nodes.evaluate_fit_node.ChatGoogleGenerativeAI") as mock_evaluate_chat,
+        mock.patch("src.nodes.strategy_generator_node.ChatGoogleGenerativeAI") as mock_strategy_chat,
     ):
         evaluate_instance = mock.MagicMock()
         evaluate_structured = mock.MagicMock()
@@ -171,9 +171,9 @@ def test_child_graph_human_review_approval_triggers_apply_changes():
     
     # Let's mock nodes so we can do a full run from start to apply_changes
     with (
-        mock.patch("src.nodes.evaluate_fit_node.ChatOpenAI") as mock_evaluate_chat,
-        mock.patch("src.nodes.strategy_generator_node.ChatOpenAI") as mock_strategy_chat,
-        mock.patch("src.nodes.cover_letter_generator_node.ChatOpenAI") as mock_cover_letter_chat,
+        mock.patch("src.nodes.evaluate_fit_node.ChatGoogleGenerativeAI") as mock_evaluate_chat,
+        mock.patch("src.nodes.strategy_generator_node.ChatGoogleGenerativeAI") as mock_strategy_chat,
+        mock.patch("src.nodes.cover_letter_generator_node.ChatGoogleGenerativeAI") as mock_cover_letter_chat,
         mock.patch("src.nodes.child_nodes.pdf_compiler") as mock_pdf_compiler
     ):
         evaluate_instance = mock.MagicMock()
@@ -243,8 +243,8 @@ def test_child_graph_clarification_path_interrupts_before_strategy_generation():
     config = {"configurable": {"thread_id": "child-graph-needs-clarification"}}
 
     with (
-        mock.patch("src.nodes.evaluate_fit_node.ChatOpenAI") as mock_evaluate_chat,
-        mock.patch("src.nodes.strategy_generator_node.ChatOpenAI") as mock_strategy_chat,
+        mock.patch("src.nodes.evaluate_fit_node.ChatGoogleGenerativeAI") as mock_evaluate_chat,
+        mock.patch("src.nodes.strategy_generator_node.ChatGoogleGenerativeAI") as mock_strategy_chat,
     ):
         evaluate_instance = mock.MagicMock()
         evaluate_structured = mock.MagicMock()

@@ -82,7 +82,7 @@ def _output(change: dict | None = None) -> StrategyGeneratorOutput:
 
 
 def test_strategy_generator_returns_markdown_diffs_and_status():
-    with patch("src.nodes.strategy_generator_node.ChatOpenAI") as mock_chat:
+    with patch("src.nodes.strategy_generator_node.ChatGoogleGenerativeAI") as mock_chat:
         mock_instance = MagicMock()
         mock_structured = MagicMock()
         mock_structured.invoke.return_value = _output()
@@ -99,7 +99,7 @@ def test_strategy_generator_returns_markdown_diffs_and_status():
 
 
 def test_strategy_generator_prompt_includes_clarification_answers_as_high_priority():
-    with patch("src.nodes.strategy_generator_node.ChatOpenAI") as mock_chat:
+    with patch("src.nodes.strategy_generator_node.ChatGoogleGenerativeAI") as mock_chat:
         mock_instance = MagicMock()
         mock_structured = MagicMock()
         mock_structured.invoke.return_value = _output()
@@ -114,7 +114,7 @@ def test_strategy_generator_prompt_includes_clarification_answers_as_high_priori
 
 
 def test_strategy_generator_prompt_handles_missing_clarification_answers():
-    with patch("src.nodes.strategy_generator_node.ChatOpenAI") as mock_chat:
+    with patch("src.nodes.strategy_generator_node.ChatGoogleGenerativeAI") as mock_chat:
         mock_instance = MagicMock()
         mock_structured = MagicMock()
         mock_structured.invoke.return_value = _output()
@@ -136,7 +136,7 @@ def test_strategy_generator_prompt_includes_resume_constraints_from_config():
             "rules": ["Only update explicitly allowed sections."],
         }
     }
-    with patch("src.nodes.strategy_generator_node.ChatOpenAI") as mock_chat:
+    with patch("src.nodes.strategy_generator_node.ChatGoogleGenerativeAI") as mock_chat:
         mock_instance = MagicMock()
         mock_structured = MagicMock()
         mock_structured.invoke.return_value = _output()
@@ -161,7 +161,7 @@ def test_strategy_generator_allows_default_highlight_edit_with_matching_old_valu
             "reason": "Emphasizes API experience for the target role.",
         }
     )
-    with patch("src.nodes.strategy_generator_node.ChatOpenAI") as mock_chat:
+    with patch("src.nodes.strategy_generator_node.ChatGoogleGenerativeAI") as mock_chat:
         mock_instance = MagicMock()
         mock_structured = MagicMock()
         mock_structured.invoke.return_value = output
@@ -184,7 +184,7 @@ def test_strategy_generator_rejects_forbidden_immutable_edit_without_drafted_sta
             "reason": "Unsafe company edit.",
         }
     )
-    with patch("src.nodes.strategy_generator_node.ChatOpenAI") as mock_chat:
+    with patch("src.nodes.strategy_generator_node.ChatGoogleGenerativeAI") as mock_chat:
         mock_instance = MagicMock()
         mock_structured = MagicMock()
         mock_structured.invoke.return_value = output
@@ -205,7 +205,7 @@ def test_strategy_generator_rejects_mismatched_old_value_without_drafted_status(
             "reason": "Aligns the summary with the target role.",
         }
     )
-    with patch("src.nodes.strategy_generator_node.ChatOpenAI") as mock_chat:
+    with patch("src.nodes.strategy_generator_node.ChatGoogleGenerativeAI") as mock_chat:
         mock_instance = MagicMock()
         mock_structured = MagicMock()
         mock_structured.invoke.return_value = output
