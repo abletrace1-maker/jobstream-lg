@@ -1,0 +1,9 @@
+llm:
+  provider: "google"
+  model: "gemini-2.5-pro"
+  temperature: 0
+paths:
+  starter_resumes: "data/starter_resumes"
+  json_resumes: "data/json_resumes"
+  job_tracker: "data/job_tracker.json"
+  output_dir: "data/output"

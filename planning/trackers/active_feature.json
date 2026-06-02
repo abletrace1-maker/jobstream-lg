@@ -1,0 +1,48 @@
+{
+  "project": "JobStream Agent v2 Upgrade",
+  "epicId": "E-01",
+  "featureId": "F-03",
+  "featureName": "Configuration Hub",
+  "description": "Build a centralized config.yaml configuration mechanism to control agent parameters without hardcoding.",
+  "status": "IN_PROGRESS",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Create centralized config.yaml and default settings",
+      "description": "As a JobStream operator, I want a centralized config.yaml file so that I can manage agent parameters without changing code.",
+      "acceptanceCriteria": [
+        "Scenario: System needs configuration",
+        "Given the JobStream agent is deployed",
+        "When the operator looks for configuration options",
+        "Then they find config/config.yaml with llm and path settings"
+      ],
+      "tasks": [
+        {"id": "T-1", "description": "Create the config directory if it does not exist", "completed": true},
+        {"id": "T-2", "description": "Create config/config.yaml with default schema for llm and paths as defined in the TRD", "completed": true}
+      ],
+      "priority": 1,
+      "status": "DONE",
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Parse and inject config.yaml in load_config_and_resume",
+      "description": "As a JobStream operator, I want the agent to automatically load config.yaml into its state when it starts so that all subsequent nodes can access the configuration.",
+      "acceptanceCriteria": [
+        "Scenario: Agent graph initialization",
+        "Given config/config.yaml exists and is valid",
+        "When the parent graph starts and runs load_config_and_resume",
+        "Then the parsed YAML content is returned under the 'config' state key"
+      ],
+      "tasks": [
+        {"id": "T-1", "description": "Import yaml module in src/nodes/parent_nodes.py", "completed": false},
+        {"id": "T-2", "description": "Add logic in load_config_and_resume to read and parse config/config.yaml", "completed": false},
+        {"id": "T-3", "description": "Update the return dictionary to pass the parsed config into the 'config' state key", "completed": false},
+        {"id": "T-4", "description": "Add error handling to fallback to an empty dict if the file is missing or invalid", "completed": false}
+      ],
+      "priority": 2,
+      "status": "PENDING",
+      "notes": ""
+    }
+  ]
+}
