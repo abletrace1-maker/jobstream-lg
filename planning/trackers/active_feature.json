@@ -1,26 +1,27 @@
 {
   "project": "JobStream Agent v2 Upgrade",
   "epicId": "E-02",
-  "featureId": "F-04",
-  "featureName": "Evaluate Fit Prompt & Schema Alignment",
-  "description": "Align the EvaluateFitNode prompt and schema to compare the base resume with the job details, and safely generate clarification questions without hallucinations.",
-  "status": "DONE",
+  "featureId": "F-05",
+  "featureName": "Gemini LLM Migration",
+  "description": "Migrate all LLM calls from OpenAI to Google Gemini (gemini-2.5-pro) using langchain-google-genai.",
+  "status": "IN_PROGRESS",
   "userStories": [
     {
       "id": "US-001",
-      "title": "Evaluate Fit using gpt-4o",
-      "description": "As a strategic job seeker, I want the system to strictly compare my base resume against the specific job details so that it can evaluate my fit and identify any gaps before tailoring.",
+      "title": "Update System Configuration for Gemini",
+      "description": "As a system operator, I want to configure the system to support Google Gemini so that the agent can authenticate with Google GenAI.",
       "acceptanceCriteria": [
-        "Scenario: System evaluates resume fit",
-        "Given the base_resume and job_details are loaded in the Child Graph State",
-        "When the EvaluateFitNode is executed",
-        "Then it invokes gpt-4o with the alignment prompt",
-        "and Then it updates the graph state with the evaluated fit status"
+        "Given the project environment",
+        "When I check the dependencies",
+        "Then `langchain-google-genai` is installed",
+        "and Given a `.env` file with `GOOGLE_API_KEY`",
+        "When the config is loaded",
+        "Then the model configuration supports specifying `gemini-2.5-pro`"
       ],
       "tasks": [
-        {"id": "T-1", "description": "Define the Langchain PromptTemplate for the EvaluateFitNode", "completed": true},
-        {"id": "T-2", "description": "Implement the gpt-4o LLM structured output call in EvaluateFitNode", "completed": true},
-        {"id": "T-3", "description": "Write a unit test for the basic fit evaluation flow", "completed": true}
+        {"id": "T-1", "description": "Run `uv add langchain-google-genai`", "completed": true},
+        {"id": "T-2", "description": "Update `config/config.yaml` to set the default model to `gemini-2.5-pro` (and `temperature: 0` if applicable)", "completed": true},
+        {"id": "T-3", "description": "Update config loading utilities (if any) to expect `GOOGLE_API_KEY`", "completed": true}
       ],
       "priority": 1,
       "status": "DONE",
@@ -28,24 +29,24 @@
     },
     {
       "id": "US-002",
-      "title": "Generate Clarification Questions for HITL",
-      "description": "As a strategic job seeker, I want the system to generate clarification questions for missing context so that I can provide accurate details instead of the AI hallucinating.",
+      "title": "Refactor LLM Nodes to use ChatGoogleGenerativeAI",
+      "description": "As a system, I want all LLM nodes to use Gemini so that the agent processes jobs using the updated model architecture.",
       "acceptanceCriteria": [
-        "Scenario: System identifies missing context",
-        "Given the EvaluateFitNode detects gaps in the candidate's resume for the job requirements",
-        "When the LLM formulates clarification questions",
-        "Then the output conforms strictly to the ClarificationQuestion schema",
-        "and Then every multiple_choice question includes a 'Let LLM decide' option",
-        "and Then it updates the status to NEEDS_CLARIFICATION"
+        "Scenario: Nodes execute using Gemini",
+        "Given the system is configured for Gemini",
+        "When the LangGraph nodes invoke an LLM",
+        "Then they instantiate `ChatGoogleGenerativeAI` instead of `ChatOpenAI`",
+        "and Then all tests pass with the updated mocked GenAI class"
       ],
       "tasks": [
-        {"id": "T-1", "description": "Create the ClarificationQuestion Pydantic schema per the TRD", "completed": true},
-        {"id": "T-2", "description": "Update the EvaluateFitNode prompt to instruct the LLM to generate clarification questions when gaps are found", "completed": true},
-        {"id": "T-3", "description": "Ensure the system strictly enforces the inclusion of the 'Let LLM decide' option in multiple_choice options", "completed": true},
-        {"id": "T-4", "description": "Write a unit test simulating a resume with missing context to verify question generation", "completed": true}
+        {"id": "T-1", "description": "Refactor `src/nodes/evaluate_fit_node.py` to use `ChatGoogleGenerativeAI`", "completed": false},
+        {"id": "T-2", "description": "Refactor `src/nodes/strategy_generator_node.py` to use `ChatGoogleGenerativeAI`", "completed": false},
+        {"id": "T-3", "description": "Refactor `src/nodes/revise_strategy_node.py` and `src/nodes/cover_letter_generator_node.py` to use `ChatGoogleGenerativeAI`", "completed": false},
+        {"id": "T-4", "description": "Update all associated test files in `tests/` to expect `ChatGoogleGenerativeAI`", "completed": false},
+        {"id": "T-5", "description": "Run `uv run pytest` to ensure all tests pass", "completed": false}
       ],
       "priority": 2,
-      "status": "DONE",
+      "status": "PENDING",
       "notes": ""
     }
   ]

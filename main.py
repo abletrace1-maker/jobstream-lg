@@ -1,11 +1,17 @@
 import os
 import sqlite3
+import sys
+from dotenv import load_dotenv
 from langgraph.checkpoint.sqlite import SqliteSaver
 
 from src.graph import parent_graph
 
-
 def main():
+    load_dotenv()
+    if not os.getenv("GOOGLE_API_KEY"):
+        print("❌ Error: GOOGLE_API_KEY is not set in the environment or .env file.")
+        sys.exit(1)
+
     print("🚀 Starting JobStream pipeline...")
     
     # Ensure data directory exists
