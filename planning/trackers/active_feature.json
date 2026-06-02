@@ -23,26 +23,26 @@
         {
           "id": "T-1",
           "description": "Define the system prompt for cover letter generation incorporating the key directives (Targeting, Alignment, Tone) as outlined in prompt_details.MD.",
-          "completed": false
+          "completed": true
         },
         {
           "id": "T-2",
           "description": "Implement the CoverLetterGeneratorNode logic to call the LLM (gpt-4o) and generate the markdown.",
-          "completed": false
+          "completed": true
         },
         {
           "id": "T-3",
           "description": "Update the Child Graph to include CoverLetterGeneratorNode in the workflow.",
-          "completed": false
+          "completed": true
         },
         {
           "id": "T-4",
           "description": "Write a unit test for CoverLetterGeneratorNode mocking the LLM call to verify state updates.",
-          "completed": false
+          "completed": true
         }
       ],
       "priority": 1,
-      "status": "PENDING",
+      "status": "DONE",
       "notes": "Follow prompt details from prompt_details.MD for Cover Letter Generator Node."
     }
   ]

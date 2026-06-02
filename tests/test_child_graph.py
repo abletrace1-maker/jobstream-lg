@@ -173,7 +173,7 @@ def test_child_graph_human_review_approval_triggers_apply_changes():
     with (
         mock.patch("src.nodes.evaluate_fit_node.ChatOpenAI") as mock_evaluate_chat,
         mock.patch("src.nodes.strategy_generator_node.ChatOpenAI") as mock_strategy_chat,
-        mock.patch("src.nodes.child_nodes.cover_letter") as mock_cover_letter,
+        mock.patch("src.nodes.cover_letter_generator_node.ChatOpenAI") as mock_cover_letter_chat,
         mock.patch("src.nodes.child_nodes.pdf_compiler") as mock_pdf_compiler
     ):
         evaluate_instance = mock.MagicMock()
@@ -205,7 +205,11 @@ def test_child_graph_human_review_approval_triggers_apply_changes():
         strategy_instance.with_structured_output.return_value = strategy_structured
         mock_strategy_chat.return_value = strategy_instance
         
-        mock_cover_letter.return_value = {"cover_letter_markdown": "Letter"}
+        from langchain_core.messages import AIMessage
+        mock_cover_llm_instance = mock.MagicMock()
+        mock_cover_llm_instance.invoke.return_value = AIMessage(content="Letter")
+        mock_cover_llm_instance.return_value = AIMessage(content="Letter")
+        mock_cover_letter_chat.return_value = mock_cover_llm_instance
         mock_pdf_compiler.return_value = {"resume_pdf_path": "resume.pdf"}
 
         # Run to human_review interrupt

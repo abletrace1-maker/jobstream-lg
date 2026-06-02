@@ -58,9 +58,7 @@ def apply_changes(state: ChildGraphState) -> Dict[str, Any]:
         
     return {"tailored_resume": tailored_resume_obj}
 
-def cover_letter(state: ChildGraphState) -> Dict[str, Any]:
-    """Stub for generating the cover letter."""
-    return {}
+from src.nodes.cover_letter_generator_node import cover_letter_generator as cover_letter
 
 def pdf_compiler(state: ChildGraphState) -> Dict[str, Any]:
     """Stub for compiling tailored resume and cover letter to PDF."""
