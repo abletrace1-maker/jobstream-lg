@@ -4,7 +4,7 @@
   "featureId": "F-01",
   "featureName": "CLI Entry Point",
   "description": "Create a main.py CLI script at the root to wrap parent_graph.invoke().",
-  "status": "IN_PROGRESS",
+  "status": "DONE",
   "userStories": [
     {
       "id": "US-001",

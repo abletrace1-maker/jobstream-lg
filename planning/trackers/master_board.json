@@ -1,0 +1,58 @@
+{
+  "projectName": "JobStream Agent v2 Upgrade",
+  "epics": [
+    {
+      "id": "E-01",
+      "name": "Application Architecture & UI Integrations",
+      "features": [
+        {
+          "id": "F-01",
+          "name": "CLI Entry Point",
+          "status": "DONE"
+        },
+        {
+          "id": "F-02",
+          "name": "Streamlit UI Enhancements",
+          "status": "PENDING"
+        },
+        {
+          "id": "F-03",
+          "name": "Configuration Hub",
+          "status": "PENDING"
+        }
+      ]
+    },
+    {
+      "id": "E-02",
+      "name": "Model Migration & Prompt Alignment",
+      "features": [
+        {
+          "id": "F-04",
+          "name": "Evaluate Fit Prompt & Schema Alignment",
+          "status": "PENDING"
+        },
+        {
+          "id": "F-05",
+          "name": "Gemini LLM Migration",
+          "status": "PENDING"
+        }
+      ]
+    },
+    {
+      "id": "E-03",
+      "name": "Pipeline Automation & Artifact Persistence",
+      "features": [
+        {
+          "id": "F-06",
+          "name": "Resume Conversion Automation",
+          "status": "PENDING"
+        },
+        {
+          "id": "F-07",
+          "name": "JSON Artifact Persistence",
+          "status": "PENDING"
+        }
+      ]
+    }
+  ]
+}
