@@ -1,6 +1,5 @@
-import os
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from src.nodes.cover_letter_generator_node import cover_letter_generator
 from src.schemas import BaseResumeSchema, ContactInfo, JobDetailsSchema
 
@@ -35,9 +34,6 @@ def sample_job_details():
     )
 
 def test_cover_letter_generator(sample_resume, sample_job_details):
-    # Mock the LLM and StrOutputParser chain
-    mock_llm_instance = MagicMock()
-    
     # We patch invoke on the ChatOpenAI class itself
     from langchain_core.messages import AIMessage
     with patch.dict("os.environ", {"OPENAI_API_KEY": "fake-api-key"}):

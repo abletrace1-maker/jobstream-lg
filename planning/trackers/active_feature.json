@@ -1,0 +1,77 @@
+{
+  "project": "JobStream Agent",
+  "epicId": "E-05",
+  "featureId": "F-16",
+  "featureName": "WeasyPrint PDF Compiler Utility & Node",
+  "description": "Programmatic PDF Document Generation by applying the approved JSON diffs to the base resume and cover letter markdown and passing it to WeasyPrint to produce an ATS-friendly PDF.",
+  "status": "IN_PROGRESS",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Resume PDF Compilation Utility",
+      "description": "As a strategic job seeker, I want my tailored resume JSON converted into an ATS-friendly PDF using WeasyPrint, so that I can submit it directly to job applications without manual formatting.",
+      "acceptanceCriteria": [
+        "Scenario: Rendering tailored resume to PDF",
+        "Given a tailored_resume matching the BaseResumeSchema",
+        "When the PDF utility is called with this data and an output path",
+        "Then it renders a Jinja2 HTML template with the resume data",
+        "and Then WeasyPrint compiles this HTML into a PDF file at the specified path",
+        "and Then the resulting PDF file exists on disk."
+      ],
+      "tasks": [
+        {"id": "T-1", "description": "Add `weasyprint` and `jinja2` to pyproject.toml via uv", "completed": true},
+        {"id": "T-2", "description": "Create src/templates/resume_template.html (Jinja2) for clean ATS-friendly layout", "completed": true},
+        {"id": "T-3", "description": "Create src/utils/pdf_compiler.py and implement compile_resume_pdf(resume_data: dict, output_path: str)", "completed": true},
+        {"id": "T-4", "description": "Write unit tests for compile_resume_pdf in tests/test_pdf_compiler.py", "completed": true}
+      ],
+      "priority": 1,
+      "status": "DONE",
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Cover Letter PDF Compilation Utility",
+      "description": "As a strategic job seeker, I want my cover letter markdown converted into a PDF using WeasyPrint, so that it matches my resume's professional formatting.",
+      "acceptanceCriteria": [
+        "Scenario: Rendering cover letter markdown to PDF",
+        "Given a cover_letter_markdown string",
+        "When the PDF utility is called with this markdown and an output path",
+        "Then it converts the markdown to HTML using the python-markdown library",
+        "and Then WeasyPrint compiles this HTML into a PDF file",
+        "and Then the resulting PDF file exists on disk."
+      ],
+      "tasks": [
+        {"id": "T-1", "description": "Add `markdown` library to pyproject.toml via uv", "completed": false},
+        {"id": "T-2", "description": "Create src/templates/cover_letter_template.html (Jinja2) for the cover letter layout", "completed": false},
+        {"id": "T-3", "description": "Implement compile_cover_letter_pdf(markdown_text: str, output_path: str) in src/utils/pdf_compiler.py", "completed": false},
+        {"id": "T-4", "description": "Write unit tests for compile_cover_letter_pdf in tests/test_pdf_compiler.py", "completed": false}
+      ],
+      "priority": 2,
+      "status": "PENDING",
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "PDFCompilerNode Integration",
+      "description": "As a system architect, I want the PDFCompilerNode to integrate the PDF utilities, so that the Child Sub-Graph automatically saves the output files and updates the graph state.",
+      "acceptanceCriteria": [
+        "Scenario: Running the PDFCompilerNode",
+        "Given the ChildGraphState contains a tailored_resume, cover_letter_markdown, and job_details.job_id",
+        "When the pdf_compiler node executes",
+        "Then it ensures an output directory exists (e.g. data/output/)",
+        "and Then it calls the PDF compilation utilities with appropriate paths",
+        "and Then it returns a state update containing resume_pdf_path and cover_letter_pdf_path."
+      ],
+      "tasks": [
+        {"id": "T-1", "description": "Update pdf_compiler in src/nodes/child_nodes.py to call the new PDF utilities", "completed": false},
+        {"id": "T-2", "description": "Ensure the node creates data/output/ if it doesn't exist", "completed": false},
+        {"id": "T-3", "description": "Generate file names using job_id (e.g., data/output/{job_id}_resume.pdf)", "completed": false},
+        {"id": "T-4", "description": "Update the node to return resume_pdf_path and cover_letter_pdf_path", "completed": false},
+        {"id": "T-5", "description": "Write integration tests for the pdf_compiler node", "completed": false}
+      ],
+      "priority": 3,
+      "status": "PENDING",
+      "notes": ""
+    }
+  ]
+}
