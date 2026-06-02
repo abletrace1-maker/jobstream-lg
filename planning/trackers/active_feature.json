@@ -1,30 +1,33 @@
 {
   "project": "JobStream Agent v2 Upgrade",
   "epicId": "E-03",
-  "featureId": "F-06",
-  "featureName": "Resume Conversion Automation",
-  "description": "Integrate the conversion logic directly into the parent graph. Scan data/starter_resumes/ for un-converted PDFs/DOCXs and trigger convert_starter_resumes_to_json() programmatically before the job loop starts.",
-  "status": "DONE",
+  "featureId": "F-07",
+  "featureName": "JSON Artifact Persistence",
+  "description": "Persist ephemeral JSON data (job_details.json and tailored_resume.json) directly into a job-specific folder data/output/{job_id}/ alongside their PDF counterparts.",
+  "status": "IN_PROGRESS",
   "userStories": [
     {
       "id": "US-001",
-      "title": "Automated parsing of starter resumes during graph initialization",
-      "description": "As a strategic job seeker, I want the system to automatically detect and convert new PDF/DOCX starter resumes into JSON when the pipeline starts, so that I don't have to run manual scripts every time I add a new base resume.",
+      "title": "Save Application Artifacts to Job-Specific Directories",
+      "description": "As a strategic job seeker, I want my tailored resumes, cover letters, and underlying JSON data saved into a dedicated folder for each job so that I have a complete, accessible record of each application without needing to inspect SQLite checkpoints.",
       "acceptanceCriteria": [
-        "Given there are unconverted starter resumes in `data/starter_resumes/`, when the `load_config_and_resume` node runs, then it should call `convert_starter_resumes_to_json()` to process them.",
-        "Given the conversion completes, when loading `data/json_resumes`, then the newly generated JSONs should be immediately loaded into the `base_resumes` state.",
-        "Given a conversion fails, when the node is running, then it should gracefully log the error without crashing the graph, continuing to process other valid resumes.",
-        "Typecheck passes and `tests/test_parent_nodes.py` is updated to mock and verify this behavior."
+        "Given the pipeline is generating final artifacts in the pdf_compiler node",
+        "When the outputs are saved to disk",
+        "Then a directory is created at `data/output/{job_id}/`",
+        "and Given the PDFs are saved to this new directory",
+        "and Given the `job_details` dictionary is saved as `job_details.json` in this directory",
+        "and Given the `tailored_resume` dictionary is saved as `tailored_resume.json` in this directory"
       ],
       "tasks": [
-        {"id": "T-1", "description": "Import `convert_starter_resumes_to_json` in `src/nodes/parent_nodes.py`.", "completed": true},
-        {"id": "T-2", "description": "Update `load_config_and_resume` to execute `convert_starter_resumes_to_json(starter_dir, json_dir)` before iterating through `data/json_resumes/`.", "completed": true},
-        {"id": "T-3", "description": "Wrap the conversion call in a try/except block to catch `BatchResumeConversionError` or standard exceptions, logging failures while allowing the pipeline to continue.", "completed": true},
-        {"id": "T-4", "description": "Update `tests/test_parent_nodes.py` to assert `convert_starter_resumes_to_json` is called correctly during node execution.", "completed": true}
+        {"id": "T-1", "description": "Update `src/nodes/child_nodes.py` in `pdf_compiler` to create a `data/output/{job_id}/` directory.", "completed": false},
+        {"id": "T-2", "description": "Update PDF generation paths to save inside the new `{job_id}` directory.", "completed": false},
+        {"id": "T-3", "description": "Write logic to serialize and save `job_details` to `data/output/{job_id}/job_details.json`.", "completed": false},
+        {"id": "T-4", "description": "Write logic to serialize and save `tailored_resume` to `data/output/{job_id}/tailored_resume.json`.", "completed": false},
+        {"id": "T-5", "description": "Run `pytest` to verify the new file paths and persistence logic.", "completed": false}
       ],
       "priority": 1,
-      "status": "DONE",
-      "notes": ""
+      "status": "PENDING",
+      "notes": "Make sure that JSON serialization handles Pydantic objects correctly (e.g., using .model_dump() or .dict()) before writing to disk."
     }
   ]
 }
