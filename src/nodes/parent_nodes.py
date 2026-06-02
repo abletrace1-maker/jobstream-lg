@@ -9,6 +9,7 @@ from src.schemas import BaseResumeSchema, JobDetailsSchema, JobTrackerEntry
 from src.state import JobStatus, ParentGraphState
 from src.utils.html_parser import extract_job_details
 from src.utils import scraper
+from src.resume_converter import convert_starter_resumes_to_json, BatchResumeConversionError
 
 def load_config_and_resume(state: ParentGraphState) -> Dict[str, Any]:
     """
@@ -44,7 +45,17 @@ def load_config_and_resume(state: ParentGraphState) -> Dict[str, Any]:
             json.dump([dummy_job.model_dump()], f, indent=2)
 
     # 2. Read JSON base resumes from data/json_resumes/
+    starter_dir = "data/starter_resumes"
     resumes_dir = "data/json_resumes"
+    
+    # Try converting any new starter resumes first
+    try:
+        convert_starter_resumes_to_json(starter_dir=starter_dir, output_dir=resumes_dir)
+    except BatchResumeConversionError as e:
+        print(f"Batch conversion error during startup: {e}")
+    except Exception as e:
+        print(f"Error converting starter resumes during startup: {e}")
+
     base_resumes = {}
     if os.path.exists(resumes_dir):
         for filename in os.listdir(resumes_dir):

@@ -6,6 +6,7 @@ import pytest
 
 from src.nodes.parent_nodes import job_ingestion, load_config_and_resume
 from src.schemas import BaseResumeSchema, JobTrackerEntry
+from src.resume_converter import BatchResumeConversionError
 
 @pytest.fixture
 def dummy_resume_data():
@@ -80,10 +81,16 @@ def test_load_config_and_resume_with_existing_data(dummy_resume_data, tmp_path):
             
             with mock.patch("src.nodes.parent_nodes.open", side_effect=mock_open_wrapper):
                 with mock.patch("src.nodes.parent_nodes.os.listdir", return_value=["base_resume_data_science.json"]):
-                    state = {}
-                    updates = load_config_and_resume(state)
-                    
-                    assert "base_resumes" in updates
+                    with mock.patch("src.nodes.parent_nodes.convert_starter_resumes_to_json") as mock_convert:
+                        state = {}
+                        updates = load_config_and_resume(state)
+                        
+                        mock_convert.assert_called_once_with(
+                            starter_dir="data/starter_resumes", 
+                            output_dir="data/json_resumes"
+                        )
+                        
+                        assert "base_resumes" in updates
                     assert "data_science" in updates["base_resumes"]
                     assert isinstance(updates["base_resumes"]["data_science"], BaseResumeSchema)
                     assert updates["base_resumes"]["data_science"].name == "John Doe"
@@ -97,15 +104,32 @@ def test_load_config_and_resume_creates_dummy(tmp_path):
     with mock.patch("src.nodes.parent_nodes.os.path.exists", return_value=False):
         with mock.patch("src.nodes.parent_nodes.open", mock.mock_open()):
             with mock.patch("src.nodes.parent_nodes.os.makedirs"):
-                state = {}
-                updates = load_config_and_resume(state)
-                
-                assert "pending_jobs" in updates
-                assert len(updates["pending_jobs"]) == 1
-                assert updates["pending_jobs"][0].job_id == "dummy-123"
-                assert "base_resumes" in updates
-                assert len(updates["base_resumes"]) == 0
+                with mock.patch("src.nodes.parent_nodes.convert_starter_resumes_to_json") as mock_convert:
+                    state = {}
+                    updates = load_config_and_resume(state)
+                    
+                    mock_convert.assert_called_once_with(
+                        starter_dir="data/starter_resumes", 
+                        output_dir="data/json_resumes"
+                    )
+                    
+                    assert "pending_jobs" in updates
+                    assert len(updates["pending_jobs"]) == 1
+                    assert updates["pending_jobs"][0].job_id == "dummy-123"
+                    assert "base_resumes" in updates
+                    assert len(updates["base_resumes"]) == 0
 
+def test_load_config_and_resume_handles_conversion_error(tmp_path):
+    with mock.patch("src.nodes.parent_nodes.os.path.exists", return_value=False):
+        with mock.patch("src.nodes.parent_nodes.open", mock.mock_open()):
+            with mock.patch("src.nodes.parent_nodes.os.makedirs"):
+                with mock.patch("src.nodes.parent_nodes.convert_starter_resumes_to_json", side_effect=BatchResumeConversionError({}, {})) as mock_convert:
+                    state = {}
+                    updates = load_config_and_resume(state)
+                    
+                    mock_convert.assert_called_once()
+                    assert "pending_jobs" in updates
+                    assert updates["pending_jobs"][0].job_id == "dummy-123"
 
 def test_job_ingestion_extracts_targeted_text_from_url():
     job = JobTrackerEntry(

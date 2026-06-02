@@ -1,0 +1,30 @@
+{
+  "project": "JobStream Agent v2 Upgrade",
+  "epicId": "E-03",
+  "featureId": "F-06",
+  "featureName": "Resume Conversion Automation",
+  "description": "Integrate the conversion logic directly into the parent graph. Scan data/starter_resumes/ for un-converted PDFs/DOCXs and trigger convert_starter_resumes_to_json() programmatically before the job loop starts.",
+  "status": "DONE",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Automated parsing of starter resumes during graph initialization",
+      "description": "As a strategic job seeker, I want the system to automatically detect and convert new PDF/DOCX starter resumes into JSON when the pipeline starts, so that I don't have to run manual scripts every time I add a new base resume.",
+      "acceptanceCriteria": [
+        "Given there are unconverted starter resumes in `data/starter_resumes/`, when the `load_config_and_resume` node runs, then it should call `convert_starter_resumes_to_json()` to process them.",
+        "Given the conversion completes, when loading `data/json_resumes`, then the newly generated JSONs should be immediately loaded into the `base_resumes` state.",
+        "Given a conversion fails, when the node is running, then it should gracefully log the error without crashing the graph, continuing to process other valid resumes.",
+        "Typecheck passes and `tests/test_parent_nodes.py` is updated to mock and verify this behavior."
+      ],
+      "tasks": [
+        {"id": "T-1", "description": "Import `convert_starter_resumes_to_json` in `src/nodes/parent_nodes.py`.", "completed": true},
+        {"id": "T-2", "description": "Update `load_config_and_resume` to execute `convert_starter_resumes_to_json(starter_dir, json_dir)` before iterating through `data/json_resumes/`.", "completed": true},
+        {"id": "T-3", "description": "Wrap the conversion call in a try/except block to catch `BatchResumeConversionError` or standard exceptions, logging failures while allowing the pipeline to continue.", "completed": true},
+        {"id": "T-4", "description": "Update `tests/test_parent_nodes.py` to assert `convert_starter_resumes_to_json` is called correctly during node execution.", "completed": true}
+      ],
+      "priority": 1,
+      "status": "DONE",
+      "notes": ""
+    }
+  ]
+}
