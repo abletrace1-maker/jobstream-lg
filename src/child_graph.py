@@ -11,9 +11,9 @@ from src.nodes.child_nodes import (
     human_review,
     revise_strategy,
     apply_changes,
-    cover_letter,
     pdf_compiler,
 )
+from src.nodes.cover_letter_generator_node import cover_letter_generator as cover_letter
 
 # Build the Child Graph
 child_builder = StateGraph(ChildGraphState)

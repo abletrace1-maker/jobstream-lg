@@ -1,10 +1,12 @@
 from typing import Any, Dict
+import os
 import logging
 from src.state import ChildGraphState
 from src.nodes.evaluate_fit_node import evaluate_fit as evaluate_fit
 from src.nodes.strategy_generator_node import strategy_generator as strategy_generator
 from src.nodes.revise_strategy_node import revise_strategy as revise_strategy
 from src.utils.diff_applier import apply_diffs
+from src.utils.pdf_compiler import compile_resume_pdf, compile_cover_letter_pdf
 from src.schemas import BaseResumeSchema
 
 logger = logging.getLogger(__name__)
@@ -60,5 +62,44 @@ def apply_changes(state: ChildGraphState) -> Dict[str, Any]:
 
 
 def pdf_compiler(state: ChildGraphState) -> Dict[str, Any]:
-    """Stub for compiling tailored resume and cover letter to PDF."""
-    return {}
+    """Compiles tailored resume and cover letter to PDF."""
+    tailored_resume = state.get("tailored_resume")
+    cover_letter_markdown = state.get("cover_letter_markdown")
+    job_details = state.get("job_details")
+    
+    # Extract job_id to use in filenames
+    if hasattr(job_details, "job_id"):
+        job_id = job_details.job_id
+    elif isinstance(job_details, dict):
+        job_id = job_details.get("job_id", "unknown_job")
+    else:
+        job_id = "unknown_job"
+        
+    if not job_id:
+        job_id = "unknown_job"
+        
+    # Ensure data/output directory exists
+    output_dir = os.path.join("data", "output")
+    os.makedirs(output_dir, exist_ok=True)
+    
+    result = {}
+    
+    if tailored_resume:
+        # Convert models to dict
+        if hasattr(tailored_resume, "model_dump"):
+            resume_dict = tailored_resume.model_dump()
+        elif hasattr(tailored_resume, "dict"):
+            resume_dict = tailored_resume.dict()
+        else:
+            resume_dict = tailored_resume
+            
+        resume_path = os.path.join(output_dir, f"{job_id}_resume.pdf")
+        compiled_resume_path = compile_resume_pdf(resume_dict, resume_path)
+        result["resume_pdf_path"] = compiled_resume_path
+        
+    if cover_letter_markdown:
+        cover_letter_path = os.path.join(output_dir, f"{job_id}_cover_letter.pdf")
+        compiled_cover_letter_path = compile_cover_letter_pdf(cover_letter_markdown, cover_letter_path)
+        result["cover_letter_pdf_path"] = compiled_cover_letter_path
+        
+    return result

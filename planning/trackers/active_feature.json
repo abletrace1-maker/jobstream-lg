@@ -98,31 +98,31 @@
         {
           "id": "T-1",
           "description": "Update pdf_compiler in src/nodes/child_nodes.py to call the new PDF utilities",
-          "completed": false
+          "completed": true
         },
         {
           "id": "T-2",
           "description": "Ensure the node creates data/output/ if it doesn't exist",
-          "completed": false
+          "completed": true
         },
         {
           "id": "T-3",
           "description": "Generate file names using job_id (e.g., data/output/{job_id}_resume.pdf)",
-          "completed": false
+          "completed": true
         },
         {
           "id": "T-4",
           "description": "Update the node to return resume_pdf_path and cover_letter_pdf_path",
-          "completed": false
+          "completed": true
         },
         {
           "id": "T-5",
           "description": "Write integration tests for the pdf_compiler node",
-          "completed": false
+          "completed": true
         }
       ],
       "priority": 3,
-      "status": "PENDING",
+      "status": "DONE",
       "notes": ""
     }
   ]
