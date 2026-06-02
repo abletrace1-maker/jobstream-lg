@@ -63,6 +63,8 @@ def apply_changes(state: ChildGraphState) -> Dict[str, Any]:
 
 def pdf_compiler(state: ChildGraphState) -> Dict[str, Any]:
     """Compiles tailored resume and cover letter to PDF."""
+    import json
+    
     tailored_resume = state.get("tailored_resume")
     cover_letter_markdown = state.get("cover_letter_markdown")
     job_details = state.get("job_details")
@@ -78,9 +80,25 @@ def pdf_compiler(state: ChildGraphState) -> Dict[str, Any]:
     if not job_id:
         job_id = "unknown_job"
         
-    # Ensure data/output directory exists
-    output_dir = os.path.join("data", "output")
+    # Ensure data/output/{job_id} directory exists
+    output_dir = os.path.join("data", "output", str(job_id))
     os.makedirs(output_dir, exist_ok=True)
+    
+    # Save job_details.json
+    job_details_path = os.path.join(output_dir, "job_details.json")
+    try:
+        job_details_dict = {}
+        if hasattr(job_details, "model_dump"):
+            job_details_dict = job_details.model_dump()
+        elif hasattr(job_details, "dict"):
+            job_details_dict = job_details.dict()
+        elif isinstance(job_details, dict):
+            job_details_dict = job_details
+            
+        with open(job_details_path, "w", encoding="utf-8") as f:
+            json.dump(job_details_dict, f, indent=2)
+    except Exception as e:
+        logger.error(f"Failed to save job_details.json: {e}")
     
     result = {}
     
@@ -92,6 +110,14 @@ def pdf_compiler(state: ChildGraphState) -> Dict[str, Any]:
             resume_dict = tailored_resume.dict()
         else:
             resume_dict = tailored_resume
+            
+        # Save tailored_resume.json
+        resume_json_path = os.path.join(output_dir, "tailored_resume.json")
+        try:
+            with open(resume_json_path, "w", encoding="utf-8") as f:
+                json.dump(resume_dict, f, indent=2)
+        except Exception as e:
+            logger.error(f"Failed to save tailored_resume.json: {e}")
             
         resume_path = os.path.join(output_dir, f"{job_id}_resume.pdf")
         compiled_resume_path = compile_resume_pdf(resume_dict, resume_path)
