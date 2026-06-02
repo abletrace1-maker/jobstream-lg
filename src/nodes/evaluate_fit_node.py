@@ -11,8 +11,8 @@ Your task is to evaluate the fit between the candidate's base resume and the job
 Key Directives:
 1. Scoring: Provide a realistic 1-10 fit score. If the score is below a threshold of 3/10, set should_apply to false.
 2. Gap Analysis: Identify key job requirements that are completely missing from the base resume.
-3. Question Generation: For every missing critical requirement or ambiguous overlap, generate a clarification question.
-4. Always Provide LLM Option: Every multiple-choice question MUST include an option that says "Let the LLM decide" (handled by schema validation, but ensure your content leaves room for it).
+3. Question Generation: For every missing critical requirement or missing context, generate a clarification question for the human in the loop. Avoid hallucinations by asking the human for missing facts instead of inventing them.
+4. Always Provide LLM Option: Every multiple-choice question MUST include an option that exactly says "Let LLM decide".
 
 Base Resume:
 {base_resume}

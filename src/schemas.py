@@ -58,7 +58,7 @@ class ClarificationQuestion(BaseModel):
     id: str
     type: Literal["multiple_choice", "text"]
     question: str
-    options: List[str]
+    options: List[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def check_options_for_multiple_choice(self):

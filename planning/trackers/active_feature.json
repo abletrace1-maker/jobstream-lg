@@ -4,7 +4,7 @@
   "featureId": "F-04",
   "featureName": "Evaluate Fit Prompt & Schema Alignment",
   "description": "Align the EvaluateFitNode prompt and schema to compare the base resume with the job details, and safely generate clarification questions without hallucinations.",
-  "status": "IN_PROGRESS",
+  "status": "DONE",
   "userStories": [
     {
       "id": "US-001",
@@ -39,13 +39,13 @@
         "and Then it updates the status to NEEDS_CLARIFICATION"
       ],
       "tasks": [
-        {"id": "T-1", "description": "Create the ClarificationQuestion Pydantic schema per the TRD", "completed": false},
-        {"id": "T-2", "description": "Update the EvaluateFitNode prompt to instruct the LLM to generate clarification questions when gaps are found", "completed": false},
-        {"id": "T-3", "description": "Ensure the system strictly enforces the inclusion of the 'Let LLM decide' option in multiple_choice options", "completed": false},
-        {"id": "T-4", "description": "Write a unit test simulating a resume with missing context to verify question generation", "completed": false}
+        {"id": "T-1", "description": "Create the ClarificationQuestion Pydantic schema per the TRD", "completed": true},
+        {"id": "T-2", "description": "Update the EvaluateFitNode prompt to instruct the LLM to generate clarification questions when gaps are found", "completed": true},
+        {"id": "T-3", "description": "Ensure the system strictly enforces the inclusion of the 'Let LLM decide' option in multiple_choice options", "completed": true},
+        {"id": "T-4", "description": "Write a unit test simulating a resume with missing context to verify question generation", "completed": true}
       ],
       "priority": 2,
-      "status": "PENDING",
+      "status": "DONE",
       "notes": ""
     }
   ]
