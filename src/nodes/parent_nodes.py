@@ -1,6 +1,7 @@
 import os
 import json
 import re
+import yaml
 from datetime import date
 from typing import Any, Callable, Dict, Mapping
 
@@ -60,11 +61,21 @@ def load_config_and_resume(state: ParentGraphState) -> Dict[str, Any]:
     else:
         os.makedirs(resumes_dir, exist_ok=True)
 
-    # 3. Return the updates for the state
+    # 3. Load config.yaml
+    config_data = {}
+    config_path = "config/config.yaml"
+    if os.path.exists(config_path):
+        try:
+            with open(config_path, "r", encoding="utf-8") as f:
+                config_data = yaml.safe_load(f) or {}
+        except Exception as e:
+            print(f"Error parsing config.yaml: {e}")
+
+    # 4. Return the updates for the state
     return {
         "base_resumes": base_resumes,
         "pending_jobs": pending_jobs,
-        "config": state.get("config", {}),
+        "config": config_data,
         "prompts": state.get("prompts", {})
     }
 

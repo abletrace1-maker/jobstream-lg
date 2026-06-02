@@ -35,13 +35,13 @@
         "Then the parsed YAML content is returned under the 'config' state key"
       ],
       "tasks": [
-        {"id": "T-1", "description": "Import yaml module in src/nodes/parent_nodes.py", "completed": false},
-        {"id": "T-2", "description": "Add logic in load_config_and_resume to read and parse config/config.yaml", "completed": false},
-        {"id": "T-3", "description": "Update the return dictionary to pass the parsed config into the 'config' state key", "completed": false},
-        {"id": "T-4", "description": "Add error handling to fallback to an empty dict if the file is missing or invalid", "completed": false}
+        {"id": "T-1", "description": "Import yaml module in src/nodes/parent_nodes.py", "completed": true},
+        {"id": "T-2", "description": "Add logic in load_config_and_resume to read and parse config/config.yaml", "completed": true},
+        {"id": "T-3", "description": "Update the return dictionary to pass the parsed config into the 'config' state key", "completed": true},
+        {"id": "T-4", "description": "Add error handling to fallback to an empty dict if the file is missing or invalid", "completed": true}
       ],
       "priority": 2,
-      "status": "PENDING",
+      "status": "DONE",
       "notes": ""
     }
   ]
