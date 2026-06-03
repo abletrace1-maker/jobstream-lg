@@ -11,7 +11,7 @@ class ScraperError(Exception):
 
 
 def create_driver():
-    return uc.Chrome()
+    return uc.Chrome(version_main=148)
 
 
 def get_delay_from_config(config_path):

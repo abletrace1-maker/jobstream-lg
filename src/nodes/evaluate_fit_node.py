@@ -25,6 +25,8 @@ def evaluate_fit(state: ChildGraphState) -> Dict[str, Any]:
     """
     Evaluate fit between base resume and job description, and generate structured clarification questions.
     """
+    job_id = state.get("job_details", {}).get("job_id", "unknown") if isinstance(state.get("job_details"), dict) else getattr(state.get("job_details"), "job_id", "unknown")
+    print(f"\n--- EVALUATE FIT CALLED for job: {job_id} ---")
     llm = ChatGoogleGenerativeAI(model="gemini-2.5-pro", temperature=0)
     structured_llm = llm.with_structured_output(EvaluateFitOutput)
     

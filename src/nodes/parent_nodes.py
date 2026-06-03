@@ -111,7 +111,10 @@ def job_ingestion(state: ParentGraphState) -> Dict[str, Any]:
                     batch_index=batch_index,
                 )
             )
-        except Exception:
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            print(f"Error processing job {job.job_id}: {e}")
             failed_jobs.append(_failed_job_entry(job))
 
     return {"scraped_jobs": scraped_jobs, "failed_jobs": failed_jobs}

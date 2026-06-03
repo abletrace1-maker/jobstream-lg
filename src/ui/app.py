@@ -5,6 +5,9 @@ import sys
 import json
 import pandas as pd
 import threading
+from dotenv import load_dotenv
+
+load_dotenv()
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
@@ -48,11 +51,31 @@ def read_job_tracker():
         return []
 
 def get_latest_graph_state(job_id):
-    """T-2: Implement function to query SqliteSaver for the latest state of each job (using job_id as thread_id)"""
-    config = {"configurable": {"thread_id": job_id}}
-    state = child_graph.get_state(config)
-    if state and hasattr(state, "values") and state.values:
-        return state.values
+    """
+    Queries SqliteSaver for the latest state of the child graph for a given job.
+    Since the child graph is executed via the Send API, its state is stored in a namespace
+    under the parent's thread_id. We search for it here.
+    """
+    saver, _ = get_checkpointer()
+    
+    # Search through recent checkpoints to find the latest state for this job_id
+    for snapshot in saver.list(None, limit=200):
+        ns = snapshot.config["configurable"].get("checkpoint_ns", "")
+        if ns.startswith("child_graph:"):
+            state_dict = snapshot.checkpoint.get("channel_values", {})
+            job_details = state_dict.get("job_details")
+            
+            current_job_id = None
+            if hasattr(job_details, "job_id"):
+                current_job_id = job_details.job_id
+            elif isinstance(job_details, dict):
+                current_job_id = job_details.get("job_id")
+                
+            if current_job_id == job_id:
+                # Add the actual config so we can resume it later
+                state_dict["_config"] = snapshot.config
+                return state_dict
+                
     return None
 
 def write_job_tracker(jobs):
@@ -90,12 +113,16 @@ def render_clarification_questions(questions):
 def run_parent_graph_bg():
     """Background thread function to invoke the parent_graph"""
     try:
+        import uuid
         saver, conn = get_checkpointer()
         graph_with_memory = parent_graph.builder.compile(checkpointer=saver)
         
         # T-2: Invoke parent_graph with config
-        config = {"configurable": {"thread_id": "batch_ingestion"}}
+        thread_id = f"batch_ingestion_{uuid.uuid4().hex[:8]}"
+        config = {"configurable": {"thread_id": thread_id}}
+        print(f"Starting new batch ingestion with thread_id: {thread_id}")
         graph_with_memory.invoke({"config": {}}, config)
+        print("Parent graph invocation finished!")
     except Exception as e:
         print(f"Error in background parent_graph thread: {e}")
 
@@ -103,14 +130,30 @@ def main():
     st.title("🌊 JobStream Application Tracker")
     st.markdown("Welcome to the JobStream AI Agent Dashboard. This system manages your job applications via LangGraph.")
 
+    if "is_processing" not in st.session_state:
+        st.session_state.is_processing = False
+
     # US-002: Start Job Processing Button in Sidebar
     with st.sidebar:
         st.header("Actions")
         if st.button("Start Job Processing", type="primary"):
             # T-3: Wire button to trigger background thread
-            bg_thread = threading.Thread(target=run_parent_graph_bg, daemon=True)
-            bg_thread.start()
+            st.session_state.is_processing = True
+            st.session_state.bg_thread = threading.Thread(target=run_parent_graph_bg, daemon=True)
+            st.session_state.bg_thread.start()
             st.success("Job processing started in the background!")
+            st.rerun()
+
+    # Poll while the background thread is running
+    if st.session_state.is_processing:
+        if "bg_thread" in st.session_state and st.session_state.bg_thread.is_alive():
+            import time
+            with st.spinner("Processing jobs in background..."):
+                time.sleep(2)
+                st.rerun()
+        else:
+            st.session_state.is_processing = False
+            st.rerun()
 
     # T-3: Add UI element to display database connection status
     st.subheader("System Status")
@@ -140,9 +183,16 @@ def main():
         graph_status = graph_state_dict.get("status") if graph_state_dict else None
         
         # Sync if there's a graph status and it differs from the tracker status
-        if graph_status and graph_status != job.get("status"):
-            job["status"] = graph_status
-            updated = True
+        if graph_status:
+            # Handle Enum serialization
+            if hasattr(graph_status, "value"):
+                graph_status_str = graph_status.value
+            else:
+                graph_status_str = str(graph_status)
+                
+            if graph_status_str != job.get("status"):
+                job["status"] = graph_status_str
+                updated = True
             
     if updated:
         write_job_tracker(jobs)
@@ -151,7 +201,7 @@ def main():
     if jobs:
         df = pd.DataFrame(jobs)
         # Optionally reorder columns or style dataframe
-        st.dataframe(df, use_container_width=True)
+        st.dataframe(df, width='stretch')
         
         # US-001 Action Required Section
         paused_jobs = [j for j in jobs if j.get("status") == JobStatus.NEEDS_CLARIFICATION.value]
@@ -188,15 +238,24 @@ def main():
                         
                         if submit_button:
                             # US-002 T-2: Inject answers into the paused Child Sub-Graph
-                            config = {"configurable": {"thread_id": selected_job_id}}
-                            child_graph.update_state(config, {"user_clarification_answers": answers})
-                            
-                            # US-002 T-3: Trigger the resumption of the graph
-                            for _ in child_graph.stream(None, config, stream_mode="values"):
-                                pass
+                            # We use the _config we found from the state search
+                            actual_config = state_dict.get("_config")
+                            if actual_config:
+                                saver, conn = get_checkpointer()
+                                from src.graph import parent_graph
+                                graph_with_memory = parent_graph.builder.compile(checkpointer=saver)
                                 
-                            st.success("Answers submitted successfully! Resuming workflow...")
-                            st.rerun()
+                                graph_with_memory.update_state(actual_config, {"user_clarification_answers": answers})
+                                
+                                # US-002 T-3: Trigger the resumption of the graph
+                                parent_config = {
+                                    "configurable": {
+                                        "thread_id": actual_config["configurable"]["thread_id"]
+                                    }
+                                }
+                                graph_with_memory.invoke(None, parent_config)
+                                st.success("Answers submitted and job resumed!")
+                                st.rerun()
                             
         # US-001: Review Drafted Strategies Section
         strategy_drafted_jobs = [j for j in jobs if j.get("status") == JobStatus.STRATEGY_DRAFTED.value]
@@ -239,14 +298,22 @@ def main():
                     
                     with col1:
                         if st.button("✅ Approve Strategy", key=f"approve_{selected_job_id}"):
-                            config = {"configurable": {"thread_id": selected_job_id}}
-                            child_graph.update_state(config, {"user_feedback": ""})
-                            
-                            for _ in child_graph.stream(None, config, stream_mode="values"):
-                                pass
+                            actual_config = state_dict.get("_config")
+                            if actual_config:
+                                saver, conn = get_checkpointer()
+                                from src.graph import parent_graph
+                                graph_with_memory = parent_graph.builder.compile(checkpointer=saver)
                                 
-                            st.success("Strategy approved! Resuming workflow...")
-                            st.rerun()
+                                graph_with_memory.update_state(actual_config, {"user_feedback": ""})
+                                
+                                parent_config = {
+                                    "configurable": {
+                                        "thread_id": actual_config["configurable"]["thread_id"]
+                                    }
+                                }
+                                graph_with_memory.invoke(None, parent_config)
+                                st.success("Strategy approved! Resuming workflow...")
+                                st.rerun()
                             
                     with col2:
                         with st.form(key=f"feedback_form_{selected_job_id}"):
@@ -260,14 +327,22 @@ def main():
                                 if not feedback_text.strip():
                                     st.warning("Please enter feedback before submitting.")
                                 else:
-                                    config = {"configurable": {"thread_id": selected_job_id}}
-                                    child_graph.update_state(config, {"user_feedback": feedback_text.strip()})
-                                    
-                                    for _ in child_graph.stream(None, config, stream_mode="values"):
-                                        pass
+                                    actual_config = state_dict.get("_config")
+                                    if actual_config:
+                                        saver, conn = get_checkpointer()
+                                        from src.graph import parent_graph
+                                        graph_with_memory = parent_graph.builder.compile(checkpointer=saver)
                                         
-                                    st.success("Feedback submitted! Resuming workflow...")
-                                    st.rerun()
+                                        graph_with_memory.update_state(actual_config, {"user_feedback": feedback_text.strip()})
+                                        
+                                        parent_config = {
+                                            "configurable": {
+                                                "thread_id": actual_config["configurable"]["thread_id"]
+                                            }
+                                        }
+                                        graph_with_memory.invoke(None, parent_config)
+                                        st.success("Feedback submitted! Resuming workflow...")
+                                        st.rerun()
                         
     else:
         st.info("No jobs found in the tracker. Add jobs to `data/job_tracker.json` to begin.")

@@ -1,0 +1,117 @@
+{
+  "name": "Alisha Hirani, PMP",
+  "contact_info": {
+    "email": "alishahirani.n@gmail.com",
+    "phone": "(437) 441-9869",
+    "linkedin": "linkedin.com/in/alishahirani",
+    "location": "Toronto, Ontario"
+  },
+  "professional_summary": "PMP-certified Operations and Project Management Leader with over 8 years of experience in steering cross-functional teams, managing complex operations, and driving process improvement. Proven ability to translate strategy into execution, overseeing the project management of programs, systems, and vendors. Expertise in enhancing operational efficiency through technology, including deploying CRM systems (HubSpot, MS Dynamics) and leading complex API integrations. Excels in managing stakeholder relationships, analogous to a member services environment, by supporting independent franchise owners. Adept at building high-performing cultures and scalable infrastructure to support organizational growth.",
+  "skills": {
+    "operations_and_project_management": [
+      "Complex Operations Management",
+      "Strategic Planning & Execution",
+      "Process Improvement & Automation",
+      "Vendor & Systems Management",
+      "PMP & Agile Methodologies"
+    ],
+    "member_and_stakeholder_relations": [
+      "Member/Client Onboarding & Training",
+      "Relationship Management",
+      "Cross-Functional Team Leadership",
+      "Workshop & Retrospective Facilitation"
+    ],
+    "technical_proficiencies": [
+      "CRM (HubSpot, MS Dynamics)",
+      "API Integrations",
+      "Jira",
+      "POS & E-commerce (Shopify) Systems",
+      "Process Automation"
+    ]
+  },
+  "professional_experience": [
+    {
+      "job_title": "Operations & Compliance Project Manager",
+      "company": "Pet Planet",
+      "location": "Toronto, Ontario",
+      "start_date": "August 2025",
+      "end_date": "Present",
+      "highlights": [
+        "Managed end-to-end delivery of new regional franchise location launches for a rapidly expanding GTA franchise, ensuring critical operational and technical projects were delivered on time and within scope.",
+        "Served as the primary point of contact for key client implementations, addressing rollout challenges promptly and maintaining strong relationships between corporate product stakeholders and external franchise clients.",
+        "Directed multiple API integration initiatives connecting franchise POS systems, Shopify e-commerce storefronts, and third-party inventory and accounting applications with the central head office backend.",
+        "Led change management and training efforts to facilitate smooth transitions for franchise owners adopting updated digital loyalty programs and modified corporate reporting tools.",
+        "Organized workshops and retrospectives to document project management procedures, capturing key findings to continuously improve deployment guidelines and client onboarding workflows."
+      ]
+    },
+    {
+      "job_title": "Project Management Consultant",
+      "company": "Freelance",
+      "location": "Toronto, Ontario",
+      "start_date": "November 2024",
+      "end_date": "March 2025",
+      "highlights": [
+        "Managed cross-functional project delivery for diverse clients, acting as the bridge between stakeholders and technical teams to translate complex business requirements into clear scope documentation and actionable execution plans.",
+        "Served as the primary client implementation manager, driving successful delivery by scheduling and facilitating regular progress reviews, budget tracking workshops, and milestone check-ins to ensure total alignment across all cross-functional teams.",
+        "Navigated complex regulatory landscapes by conducting compliance reviews against provincial standards, mitigating delivery risks prior to project execution.",
+        "Organized project retrospectives and iterative feedback sessions with vendors and contractors, actively managing and diffusing conflicts to keep delivery timelines on track.",
+        "Utilized visual coordination tools to establish a single source of truth for technical specifications and resource requirements."
+      ]
+    },
+    {
+      "job_title": "Project Coordinator",
+      "company": "NAK Design Strategies",
+      "location": "Toronto, Ontario",
+      "start_date": "November 2024",
+      "end_date": "March 2025",
+      "highlights": [
+        "Facilitated day-to-day operational efficiency for a multi-million dollar regional portfolio by managing daily project correspondence, change tracking, and master project documentation.",
+        "Collaborated directly with external consultants, municipalities, and internal project managers to streamline communication, resulting in zero delays for critical project approvals.",
+        "Assisted in the quantitative analysis and structural preparation of comprehensive cost estimates, supporting competitive project proposals with an aggregate value of $69 million.",
+        "Developed comprehensive technical drawings and structured presentation materials, ensuring 100% adherence to rigorous regulatory, quality, and zoning frameworks."
+      ]
+    },
+    {
+      "job_title": "Founder, Lead Architectural Designer & Project Manager",
+      "company": "Creativa Life Limited",
+      "location": "Albion, Mauritius",
+      "start_date": "January 2018",
+      "end_date": "November 2024",
+      "highlights": [
+        "Founded and scaled an award-winning boutique firm, managing a portfolio of over 40 residential and small commercial projects from initial proposal through final regulatory compliance certification.",
+        "Deployed and configured a centralized CRM system (HubSpot) to manage client pipelines, automate onboarding workflows, and track cross-functional communications.",
+        "Directed end-to-end project management, contract negotiations, and budget allocations for complex portfolios with a cumulative value exceeding $3 million, consistently delivering within defined margins.",
+        "Led, mentored, and coached a cross-functional team of 7 professionals, fostering a highly collaborative environment focused on service delivery excellence that resulted in an African Property Award.",
+        "Chaired weekly stakeholder meetings and technical workshops with clients, engineering partners, and regulatory inspectors to align delivery goals, address project variations, and manage technical change controls."
+      ]
+    },
+    {
+      "job_title": "Senior Associate Architect (Regulatory & Standards)",
+      "company": "Dimensions Architects",
+      "location": "Kampala, Uganda",
+      "start_date": "January 2017",
+      "end_date": "December 2017",
+      "highlights": [
+        "Guided the conceptualization and structural scope definition for major regional commercial developments, aligning diverse stakeholder expectations into cohesive implementation plans.",
+        "Liaised directly with urban planning authorities and municipal engineers to interpret complex safety codes, securing expedited compliance approvals for high-stakes projects.",
+        "Conducted regular on-site delivery inspections and quality audits to ensure contractor execution mirrored approved technical drawings, engineering specifications, and safety guidelines."
+      ]
+    }
+  ],
+  "educational_experience": [
+    {
+      "degree": "Bachelor of Science (Hons) in Architecture",
+      "school": "Taylor\u2019s University Malaysia",
+      "start_date": "",
+      "end_date": "",
+      "awards": []
+    }
+  ],
+  "other_points": [
+    "Certification: Project Management Professional (PMP)",
+    "Women Leader Award (2020 & 2021) \u2013 World Women Leadership Congress",
+    "Best Brand Award (2020) \u2013 World Marketing Congress",
+    "Best Architectural Firm (2022) \u2013 MEA Markets",
+    "Africa Property Award (2023-2024)"
+  ]
+}

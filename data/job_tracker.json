@@ -1,13 +1,24 @@
 [
   {
-    "job_id": "dummy-123",
-    "title": "Software Engineer",
-    "company": "Tech Corp",
+    "job_id": "06-01-Harper Harrison",
+    "title": "Project manager",
+    "company": "Harper Harrison",
     "source_type": "url",
-    "source": "https://example.com/job",
-    "category": "software_engineering",
+    "source": "https://www.linkedin.com/jobs/view/4414760244/?alternateChannel=search&eBP=CwEAAAGejkPqj8RyXZ7dZcT5Ij4yHPfO4btx-TtxkSshY3HXX9Xmyfku4BlaZ6EpBqP0O04WUJzKnbtc8f2OOUhZDr8w9s-TKMzxF0hsZhgfks677Otw-F8AAogyt5yRNKcFMQJ3AEZnTC9rrPT9zjgBxv-AHxXJjUcAGG1NQnGNl0EUFlUtvs_A_CRQieKVthytfpaZd9eSgJ-iK9RoejyqVZi3c43dsOz5s2GHBB4q5dvfY_L9VE5V3Q6Zlh53uC8-R_zYAOSPkjXEL47VEJ0qEvfYAo425y3l6tarcZ77ktKnXUTGbAJmpHqHRgeKLqBYW4pjqjaZP1xiU_91jUEWMYDBfv9XA_uOH1lz2QN-0s27JmfyA6fF0BALwNd7oyLgJdcSYy1lb57L5ovxIXU0K2c4g17kM1q7d3xLL_3cRMy7Df9VzVTuN92ETyVUDT6IwW-KppELkPyoSdvxe9du-QrZUJSmlej14eXTCf2aVkD1&refId=w4BNpZ9K8S8Ykx8194vEYg%3D%3D&trackingId=gx4KNXzFXXs5i2Wwhf5clw%3D%3D",
+    "category": "engineering",
     "user_score": "high",
-    "notes": "Dummy job",
+    "notes": "good job",
+    "status": "PENDING"
+  },
+  {
+    "job_id": "06-01-scopley",
+    "title": "Senior Business Operations Manager",
+    "company": "Scopely",
+    "source_type": "url",
+    "source": "https://www.linkedin.com/jobs/view/4418172979/?alternateChannel=search&eBP=NOT_ELIGIBLE_FOR_CHARGING&refId=UcrQy6GbSmihyh2e%2Bu4FeQ%3D%3D&trackingId=eYaq5Rj6uOUxlKPjxhUfww%3D%3D",
+    "category": "engineering",
+    "user_score": "medium",
+    "notes": "not so fun job",
     "status": "PENDING"
   }
 ]

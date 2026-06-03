@@ -1,0 +1,14 @@
+{
+  "name": "Jane Doe",
+  "contact_info": {
+    "email": "jane@example.com",
+    "phone": "123",
+    "linkedin": "linkedin.com/in/jane",
+    "location": "NY"
+  },
+  "professional_summary": "Testing",
+  "skills": {},
+  "professional_experience": [],
+  "educational_experience": [],
+  "other_points": []
+}

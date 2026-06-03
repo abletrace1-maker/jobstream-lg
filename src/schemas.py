@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional, Literal
+from typing import List, Dict, Optional, Literal, Any
 from pydantic import BaseModel, Field, model_validator
 
 class ContactInfo(BaseModel):
@@ -76,8 +76,8 @@ class EvaluateFitOutput(BaseModel):
 class ResumeChange(BaseModel):
     action: str
     section: str
-    old_value: str
-    new_value: str
+    old_value: Any
+    new_value: Any
     reason: str
 
 class ResumeDiffSchema(BaseModel):

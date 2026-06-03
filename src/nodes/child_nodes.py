@@ -30,7 +30,7 @@ def apply_changes(state: ChildGraphState) -> Dict[str, Any]:
         
     if not resume_diffs or not hasattr(resume_diffs, "changes") or not resume_diffs.changes:
         logger.info("No resume_diffs to apply. Keeping original resume.")
-        return {"tailored_resume": base_resume}
+        return {"tailored_resume": base_resume, "status": "APPROVED"}
         
     # Convert models to dicts
     if hasattr(base_resume, "model_dump"):
@@ -56,9 +56,10 @@ def apply_changes(state: ChildGraphState) -> Dict[str, Any]:
         tailored_resume_obj = BaseResumeSchema.model_validate(tailored_resume_dict)
     except Exception as e:
         logger.error(f"Failed to validate tailored resume: {e}")
-        tailored_resume_obj = tailored_resume_dict
+        # Fall back to base_resume if diffs corrupted the schema
+        tailored_resume_obj = base_resume
         
-    return {"tailored_resume": tailored_resume_obj}
+    return {"tailored_resume": tailored_resume_obj, "status": "APPROVED"}
 
 
 def pdf_compiler(state: ChildGraphState) -> Dict[str, Any]:
@@ -128,4 +129,8 @@ def pdf_compiler(state: ChildGraphState) -> Dict[str, Any]:
         compiled_cover_letter_path = compile_cover_letter_pdf(cover_letter_markdown, cover_letter_path)
         result["cover_letter_pdf_path"] = compiled_cover_letter_path
         
-    return result
+    return {
+        "resume_pdf_path": compiled_resume_path if tailored_resume else "",
+        "cover_letter_pdf_path": compiled_cover_letter_path if cover_letter_markdown else "",
+        "status": "APPROVED"
+    }

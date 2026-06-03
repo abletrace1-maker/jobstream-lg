@@ -45,8 +45,8 @@ def apply_diffs(base_resume: Dict[str, Any], diffs: List[Dict[str, Any]]) -> Dic
             logger.warning("Diff is missing 'section' path.")
             continue
             
-        if action != "replace":
-            logger.warning(f"Unsupported action '{action}' for path {path_str}. Only 'replace' is supported.")
+        if action not in ("replace", "update"):
+            logger.warning(f"Unsupported action '{action}' for path {path_str}. Only 'replace' and 'update' are supported.")
             continue
             
         path = parse_json_path(path_str)

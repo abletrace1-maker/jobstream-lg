@@ -1,0 +1,19 @@
+{
+  "job_title": "Senior Python Engineer",
+  "company": "Acme",
+  "location": "Remote",
+  "job_id": "job-1",
+  "category": "engineering",
+  "salary_range": null,
+  "requirements": [
+    "Python",
+    "APIs"
+  ],
+  "nice_to_haves": [
+    "Docker"
+  ],
+  "responsibilities": [
+    "Build backend services"
+  ],
+  "raw_text": "Python API role"
+}

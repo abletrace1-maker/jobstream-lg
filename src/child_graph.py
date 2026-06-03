@@ -29,7 +29,12 @@ child_builder.add_node("cover_letter", cover_letter)
 child_builder.add_node("pdf_compiler", pdf_compiler)
 
 def route_after_evaluate(state: ChildGraphState) -> str:
-    if state.get("status") == "NEEDS_CLARIFICATION":
+    status = state.get("status")
+    if hasattr(status, "value"):
+        status = status.value
+    if status == "REJECTED":
+        return END
+    if status == "NEEDS_CLARIFICATION":
         return "clarification"
     return "strategy_generator"
 
