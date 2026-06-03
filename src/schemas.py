@@ -75,7 +75,7 @@ class EvaluateFitOutput(BaseModel):
 
 class ResumeChange(BaseModel):
     action: str
-    section: str
+    section: str = Field(description="The exact path to the field being changed (e.g., 'professional_experience[0].highlights[2]', 'skills.project_delivery_management')")
     old_value: Any
     new_value: Any
     reason: str

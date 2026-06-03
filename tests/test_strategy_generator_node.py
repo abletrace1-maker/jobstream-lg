@@ -195,7 +195,7 @@ def test_strategy_generator_rejects_forbidden_immutable_edit_without_drafted_sta
             strategy_generator(_state())
 
 
-def test_strategy_generator_rejects_mismatched_old_value_without_drafted_status():
+def test_strategy_generator_warns_mismatched_old_value():
     output = _output(
         {
             "action": "replace",
@@ -212,8 +212,10 @@ def test_strategy_generator_rejects_mismatched_old_value_without_drafted_status(
         mock_instance.with_structured_output.return_value = mock_structured
         mock_chat.return_value = mock_instance
 
-        with pytest.raises(ValueError, match="old_value does not match"):
-            strategy_generator(_state())
+        # Should NOT raise ValueError, instead should log a warning and return the drafted status
+        result = strategy_generator(_state())
+        assert result["status"] == "STRATEGY_DRAFTED"
+        assert len(result["resume_diffs"].changes) == 1
 
 
 def test_child_nodes_strategy_generator_delegates_to_implementation():

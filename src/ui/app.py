@@ -130,6 +130,10 @@ def main():
     st.title("🌊 JobStream Application Tracker")
     st.markdown("Welcome to the JobStream AI Agent Dashboard. This system manages your job applications via LangGraph.")
 
+    if "success_msg" in st.session_state and st.session_state.success_msg:
+        st.success(st.session_state.success_msg)
+        st.session_state.success_msg = None
+
     if "is_processing" not in st.session_state:
         st.session_state.is_processing = False
 
@@ -207,6 +211,7 @@ def main():
         paused_jobs = [j for j in jobs if j.get("status") == JobStatus.NEEDS_CLARIFICATION.value]
         if paused_jobs:
             st.subheader("⚠️ Action Required: Clarifications Needed")
+            st.info("💡 You can submit answers for jobs individually. Once submitted, the agent will begin drafting the strategy for that job in the background while you answer questions for others.")
             
             selected_job_title = st.selectbox(
                 "Select a job to provide clarifications for",
@@ -253,8 +258,19 @@ def main():
                                         "thread_id": actual_config["configurable"]["thread_id"]
                                     }
                                 }
-                                graph_with_memory.invoke(None, parent_config)
-                                st.success("Answers submitted and job resumed!")
+                                # Run invoke in a background thread to prevent UI freezing
+                                def run_resume():
+                                    try:
+                                        graph_with_memory.invoke(None, parent_config)
+                                    except Exception as e:
+                                        print(f"Error resuming graph: {e}")
+                                
+                                import threading
+                                st.session_state.is_processing = True
+                                st.session_state.bg_thread = threading.Thread(target=run_resume, daemon=True)
+                                st.session_state.bg_thread.start()
+                                
+                                st.session_state.success_msg = f"Answers submitted for {j['company']}! The agent is now drafting your strategy in the background."
                                 st.rerun()
                             
         # US-001: Review Drafted Strategies Section
@@ -311,8 +327,16 @@ def main():
                                         "thread_id": actual_config["configurable"]["thread_id"]
                                     }
                                 }
-                                graph_with_memory.invoke(None, parent_config)
-                                st.success("Strategy approved! Resuming workflow...")
+                                def run_resume():
+                                    try:
+                                        graph_with_memory.invoke(None, parent_config)
+                                    except Exception as e:
+                                        print(f"Error resuming graph: {e}")
+                                
+                                import threading
+                                threading.Thread(target=run_resume, daemon=True).start()
+                                selected_job_company = next((job['company'] for job in strategy_drafted_jobs if job['job_id'] == selected_job_id), "the company")
+                                st.session_state.success_msg = f"Strategy approved for {selected_job_company}! Resuming workflow..."
                                 st.rerun()
                             
                     with col2:
@@ -340,8 +364,18 @@ def main():
                                                 "thread_id": actual_config["configurable"]["thread_id"]
                                             }
                                         }
-                                        graph_with_memory.invoke(None, parent_config)
-                                        st.success("Feedback submitted! Resuming workflow...")
+                                        def run_resume():
+                                            try:
+                                                graph_with_memory.invoke(None, parent_config)
+                                            except Exception as e:
+                                                print(f"Error resuming graph: {e}")
+                                        
+                                        import threading
+                                        st.session_state.is_processing = True
+                                        st.session_state.bg_thread = threading.Thread(target=run_resume, daemon=True)
+                                        st.session_state.bg_thread.start()
+                                        selected_job_company = next((job['company'] for job in strategy_drafted_jobs if job['job_id'] == selected_job_id), "the company")
+                                        st.session_state.success_msg = f"Feedback submitted for {selected_job_company}! Resuming workflow..."
                                         st.rerun()
                         
     else:

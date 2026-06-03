@@ -15,6 +15,7 @@ Generate a synchronized tailoring strategy and exact resume diffs for one job ap
 Rules:
 - The strategy_markdown must be human-readable and describe every proposed resume change.
 - The resume_diffs must contain the exact same proposed changes using the ResumeDiffSchema field names.
+- IMPORTANT: For resume_diffs `section`, use exact JSON paths with array indices matching the Base Resume JSON (e.g., `professional_experience[0].highlights[2]`, `skills.Python`).
 - Use only grounded information from the base_resume, job_details, and user_clarification_answers.
 - Do not invent employment history, education, credentials, dates, companies, titles, or contact details.
 - Prefer concise, ATS-friendly wording aligned to the job requirements.

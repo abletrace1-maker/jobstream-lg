@@ -87,8 +87,12 @@ def test_pdf_compiler_node_missing_data():
         assert not mock_compile_resume.called
         assert not mock_compile_cl.called
         
-        # State update should be empty
-        assert result == {}
+        # State update should return empty paths
+        assert result == {
+            "resume_pdf_path": "",
+            "cover_letter_pdf_path": "",
+            "status": "APPROVED"
+        }
 
 def test_pdf_compiler_node_no_job_id():
     """Test node handles missing job_id gracefully."""
