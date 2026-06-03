@@ -1,24 +1,35 @@
 [
   {
-    "job_id": "06-01-Harper Harrison",
+    "job_id": "06-01-paymentus",
     "title": "Project manager",
-    "company": "Harper Harrison",
+    "company": "paymentus",
     "source_type": "url",
-    "source": "https://www.linkedin.com/jobs/view/4414760244/?alternateChannel=search&eBP=CwEAAAGejkPqj8RyXZ7dZcT5Ij4yHPfO4btx-TtxkSshY3HXX9Xmyfku4BlaZ6EpBqP0O04WUJzKnbtc8f2OOUhZDr8w9s-TKMzxF0hsZhgfks677Otw-F8AAogyt5yRNKcFMQJ3AEZnTC9rrPT9zjgBxv-AHxXJjUcAGG1NQnGNl0EUFlUtvs_A_CRQieKVthytfpaZd9eSgJ-iK9RoejyqVZi3c43dsOz5s2GHBB4q5dvfY_L9VE5V3Q6Zlh53uC8-R_zYAOSPkjXEL47VEJ0qEvfYAo425y3l6tarcZ77ktKnXUTGbAJmpHqHRgeKLqBYW4pjqjaZP1xiU_91jUEWMYDBfv9XA_uOH1lz2QN-0s27JmfyA6fF0BALwNd7oyLgJdcSYy1lb57L5ovxIXU0K2c4g17kM1q7d3xLL_3cRMy7Df9VzVTuN92ETyVUDT6IwW-KppELkPyoSdvxe9du-QrZUJSmlej14eXTCf2aVkD1&refId=w4BNpZ9K8S8Ykx8194vEYg%3D%3D&trackingId=gx4KNXzFXXs5i2Wwhf5clw%3D%3D",
+    "source": "https://www.linkedin.com/jobs/view/4418107661/?alternateChannel=search&eBP=CwEAAAGejkU_qfr57xiukjGmL4Kb6BcQr8dGUKuokExE6RsHwyx7xJmDTHwGwYwiGqV0RT8zk2NPtI5M4XoKG91ApPlEkQVfi1kb_uwJEQkslLDQloNPLhPMwlLJrx1dqac0pIf4UVk3dsHDe8R0Y7RwcsyzNLUZrWN-Z4q3aogl4sYaerbtnRTv4uRywY9JSu6GnKN80iDJSo4GwyBrG5yGxJvzWTEekwwSyKDhP7d2onV0jo9YgxJAvwO5_PGVoybxyP0CgB5mhAXewesD90v41YgYCnbDv4qJe-nLxYS-UOEGo1Ck9zcjseVrAaBiAI4MqO7EFm0zY82LQ7KtIg9HbgYCNji9WZ5Oyx4srd-Vi-4-JhqEqoINqiFURcGmHSFmzmEgd1te8l8kGLWG2UxNkGbklewIZutogYVpOlqChsc8tctouhRf_QncWEN2RMLTYV1YIibxCt_POixHB2G8jQ7CPMv7nxaaurlHH0I&refId=jzLH%2FpbtgSm34hSa7fB1wQ%3D%3D&trackingId=iU9XHD8%2Fnj4OYg9NKjmEeQ%3D%3D",
     "category": "engineering",
     "user_score": "high",
     "notes": "good job",
-    "status": "PENDING"
+    "status": "NEEDS_CLARIFICATION"
   },
   {
-    "job_id": "06-01-scopley",
-    "title": "Senior Business Operations Manager",
-    "company": "Scopely",
+    "job_id": "06-01-boehringer",
+    "title": "Customer experience ops manager",
+    "company": "boehringer",
     "source_type": "url",
-    "source": "https://www.linkedin.com/jobs/view/4418172979/?alternateChannel=search&eBP=NOT_ELIGIBLE_FOR_CHARGING&refId=UcrQy6GbSmihyh2e%2Bu4FeQ%3D%3D&trackingId=eYaq5Rj6uOUxlKPjxhUfww%3D%3D",
+    "source": "https://www.linkedin.com/jobs/view/4420623790/?alternateChannel=search&eBP=CwEAAAGejkU_qfeaP50CmhOf2l3f1jjRaFgNyf9blzDKLKqBb9_7fJhLnFPuLD_oI3ksxIRLiu7wLFTlwgiU5Tysa75mhq5RBxHPZbRliQXUEBKg8QmBNW8LGYrQWwcJcgDC_gD-VZyCAooP6ZQ2BVjeRNFi-n3alNSzlbFnpoF7fQ_hNiysNxcgH6CvzPpTUrNBmYI5DN5MpiedDwESU7wTxWTxZeNOWE_nD292tVuUgwEBf3vPR9oYRJQviEOcRNONUQoW78vma54clrAZSlDr7ORrUuQ8hEZ5LT2CAEUhokQJi3_87dIhqqMBUhmx_krORYOAgEyrsaZoHuUIXYGjUMGYgwejyNTnKiC6Z4MSpaWz_AR_L7SovJiv8chNg-CV7-WS__5YCOeaFd6eY7w6HNWU8MRxl0DXm0PXNIjDvSPWN9uhkJlbl7ucnNhayphKuo4ovcMVBPonoP1JOp1zFlcbdKSVX2YWGODkmIUCL9vdD08eCQ&refId=jzLH%2FpbtgSm34hSa7fB1wQ%3D%3D&trackingId=QeGaNcLbnryvKYPtpJJwzw%3D%3D",
     "category": "engineering",
     "user_score": "medium",
     "notes": "not so fun job",
-    "status": "PENDING"
+    "status": "NEEDS_CLARIFICATION"
+  },
+  {
+    "job_id": "06-01-saputo",
+    "title": "IT Senior Project Manager",
+    "company": "saputo",
+    "source_type": "url",
+    "source": "https://www.linkedin.com/jobs/view/4403117659/?alternateChannel=search&eBP=CwEAAAGejkU_qMgS70Jz6Vys3ViK9J24uOvt05PAHXlarWPYpn54bSfYIXZhWU7xnZ7mlSrV4R2I7AIkgBgkDydPWQ6-AmouunbSkKfNv8XBsJUHGPvXnddSYd2-0tyuWib5fkHhePHtcSt35kq6iPAq040tedUzgpVhK5LTZz6suBz_cdqys7mUxr68_JKEB0PScflLF5b-fEm9GHb1UDsY0dxtnuq4On091czUsXMCgMl4ibU-vcEWyWpP0tBBJROe8PDIhndW4WJreFl2yH-04Nsk42e7lTPPrPWlpDBEY0PvlGjY0Yds8eeRHzhhlWswn0qN-GyPJGDXCJa9pN37SrhwLVyuljz7iRMx19p3DEFG_x9uScDa1naM7S29n3zv5HCj-WCg1_3iT4-AdZk20fBjwiX94lMZJZsHTi0sU8Gf31ARWaSTwlvg41IES3BmofvKwD4Iy0ZzX0DKSrLue9J2Wk50sYLH9l0R&refId=jzLH%2FpbtgSm34hSa7fB1wQ%3D%3D&trackingId=RFvskFb1NZuIxq1jblzJVw%3D%3D",
+    "category": "engineering",
+    "user_score": "medium",
+    "notes": "not so fun job",
+    "status": "REJECTED"
   }
 ]

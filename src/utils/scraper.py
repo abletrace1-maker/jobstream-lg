@@ -1,3 +1,4 @@
+import os
 import time
 import random
 import re
@@ -11,7 +12,11 @@ class ScraperError(Exception):
 
 
 def create_driver():
-    return uc.Chrome(version_main=148)
+    # Store chrome profile in the project directory so logins persist
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    profile_dir = os.path.join(project_root, "chrome_profile")
+    os.makedirs(profile_dir, exist_ok=True)
+    return uc.Chrome(version_main=148, user_data_dir=profile_dir)
 
 
 def get_delay_from_config(config_path):

@@ -100,22 +100,38 @@ def job_ingestion(state: ParentGraphState) -> Dict[str, Any]:
     failed_jobs = []
     parser = state.get("config", {}).get("job_details_parser")
 
-    for batch_index, job in enumerate(state.get("pending_jobs", []), start=1):
-        try:
-            focused_text = _normalize_job_source(job)
-            scraped_jobs.append(
-                _parse_job_details(
-                    focused_text,
-                    job,
-                    parser=parser,
-                    batch_index=batch_index,
+    driver = None
+
+    try:
+        for batch_index, job in enumerate(state.get("pending_jobs", []), start=1):
+            try:
+                if job.source_type == "url":
+                    if driver is None:
+                        driver = scraper.create_driver()
+                    else:
+                        import time
+                        import random
+                        delay = random.uniform(2.0, 4.0)
+                        print(f"Waiting {delay:.2f}s before next URL to maintain session...")
+                        time.sleep(delay)
+
+                focused_text = _normalize_job_source(job, driver)
+                scraped_jobs.append(
+                    _parse_job_details(
+                        focused_text,
+                        job,
+                        parser=parser,
+                        batch_index=batch_index,
+                    )
                 )
-            )
-        except Exception as e:
-            import traceback
-            traceback.print_exc()
-            print(f"Error processing job {job.job_id}: {e}")
-            failed_jobs.append(_failed_job_entry(job))
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                print(f"Error processing job {job.job_id}: {e}")
+                failed_jobs.append(_failed_job_entry(job))
+    finally:
+        if driver is not None and hasattr(driver, "quit"):
+            driver.quit()
 
     return {"scraped_jobs": scraped_jobs, "failed_jobs": failed_jobs}
 
@@ -280,14 +296,14 @@ def _extract_list_by_keywords(lines: list[str], keywords: tuple[str, ...]) -> li
     return matches
 
 
-def _normalize_job_source(job: JobTrackerEntry) -> str:
-    raw_content = _load_job_source(job)
+def _normalize_job_source(job: JobTrackerEntry, driver=None) -> str:
+    raw_content = _load_job_source(job, driver)
     return extract_job_details(raw_content)
 
 
-def _load_job_source(job: JobTrackerEntry) -> str:
+def _load_job_source(job: JobTrackerEntry, driver=None) -> str:
     if job.source_type == "url":
-        return _load_url_source(job.source)
+        return _load_url_source(job.source, driver)
 
     if job.source_type == "file":
         return _load_file_source(job.source)
@@ -295,12 +311,15 @@ def _load_job_source(job: JobTrackerEntry) -> str:
     raise ValueError(f"Unsupported job source_type: {job.source_type}")
 
 
-def _load_url_source(url: str) -> str:
-    driver = scraper.create_driver()
+def _load_url_source(url: str, driver=None) -> str:
+    own_driver = False
+    if driver is None:
+        driver = scraper.create_driver()
+        own_driver = True
     try:
         return scraper.fetch_url_stealth(driver, url)
     finally:
-        if hasattr(driver, "quit"):
+        if own_driver and hasattr(driver, "quit"):
             driver.quit()
 
 
