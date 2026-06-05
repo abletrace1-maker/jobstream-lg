@@ -265,12 +265,11 @@ def main():
                                     except Exception as e:
                                         print(f"Error resuming graph: {e}")
                                 
-                                import threading
                                 st.session_state.is_processing = True
                                 st.session_state.bg_thread = threading.Thread(target=run_resume, daemon=True)
                                 st.session_state.bg_thread.start()
                                 
-                                st.session_state.success_msg = f"Answers submitted for {j['company']}! The agent is now drafting your strategy in the background."
+                                st.session_state.success_msg = f"Answers submitted for {selected_job_id}! The agent is now drafting your strategy in the background."
                                 st.rerun()
                             
         # US-001: Review Drafted Strategies Section
@@ -320,7 +319,7 @@ def main():
                                 from src.graph import parent_graph
                                 graph_with_memory = parent_graph.builder.compile(checkpointer=saver)
                                 
-                                graph_with_memory.update_state(actual_config, {"user_feedback": ""})
+                                graph_with_memory.update_state(actual_config, {"status": JobStatus.APPROVED.value, "user_feedback": ""})
                                 
                                 parent_config = {
                                     "configurable": {
@@ -333,7 +332,6 @@ def main():
                                     except Exception as e:
                                         print(f"Error resuming graph: {e}")
                                 
-                                import threading
                                 threading.Thread(target=run_resume, daemon=True).start()
                                 selected_job_company = next((job['company'] for job in strategy_drafted_jobs if job['job_id'] == selected_job_id), "the company")
                                 st.session_state.success_msg = f"Strategy approved for {selected_job_company}! Resuming workflow..."
@@ -370,7 +368,6 @@ def main():
                                             except Exception as e:
                                                 print(f"Error resuming graph: {e}")
                                         
-                                        import threading
                                         st.session_state.is_processing = True
                                         st.session_state.bg_thread = threading.Thread(target=run_resume, daemon=True)
                                         st.session_state.bg_thread.start()

@@ -38,15 +38,28 @@ def route_after_evaluate(state: ChildGraphState) -> str:
         return "clarification"
     return "strategy_generator"
 
+def route_after_clarification(state: ChildGraphState) -> str:
+    if not state.get("user_clarification_answers"):
+        return "clarification"
+    return "strategy_generator"
+
 def route_after_human_review(state: ChildGraphState) -> str:
-    if state.get("user_feedback") or state.get("status") == "REJECTED":
+    status = state.get("status")
+    if hasattr(status, "value"):
+        status = status.value
+        
+    if status == "APPROVED":
+        return "apply_changes"
+        
+    if state.get("user_feedback") or status == "REJECTED":
         return "revise_strategy"
-    return "apply_changes"
+        
+    return "human_review"
 
 # Define flow with conditional routing
 child_builder.add_edge(START, "evaluate_fit")
 child_builder.add_conditional_edges("evaluate_fit", route_after_evaluate)
-child_builder.add_edge("clarification", "strategy_generator")
+child_builder.add_conditional_edges("clarification", route_after_clarification)
 child_builder.add_edge("strategy_generator", "human_review")
 child_builder.add_conditional_edges("human_review", route_after_human_review)
 child_builder.add_edge("revise_strategy", "human_review")
