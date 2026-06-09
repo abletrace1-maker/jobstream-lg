@@ -36,7 +36,8 @@ def get_checkpointer():
     """
     # Ensure data directory exists
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
+    db_path = ":memory:" if os.environ.get("TESTING") == "1" else DB_PATH
+    conn = sqlite3.connect(db_path, check_same_thread=False)
     
     saver = SqliteSaver(conn)
     saver.setup()
@@ -296,13 +297,24 @@ def main():
                     st.markdown(strategy_markdown)
                     
                     st.write("### Resume Diffs")
-                    if resume_diffs:
-                        if isinstance(resume_diffs, dict):
-                            st.json(resume_diffs)
-                        elif hasattr(resume_diffs, "model_dump"):
-                            st.json(resume_diffs.model_dump())
+                    
+                    # Try to read resume_diffs from disk first (in case the user manually modified it)
+                    diffs_path = os.path.join("data", "output", str(selected_job_id), "resume_diffs.json")
+                    display_diffs = resume_diffs
+                    if os.path.exists(diffs_path):
+                        try:
+                            with open(diffs_path, "r", encoding="utf-8") as f:
+                                display_diffs = json.load(f)
+                        except Exception as e:
+                            pass
+                            
+                    if display_diffs:
+                        if isinstance(display_diffs, dict):
+                            st.json(display_diffs)
+                        elif hasattr(display_diffs, "model_dump"):
+                            st.json(display_diffs.model_dump())
                         else:
-                            st.json(resume_diffs)
+                            st.json(display_diffs)
                     else:
                         st.info("No resume diffs generated.")
                         
@@ -319,7 +331,19 @@ def main():
                                 from src.graph import parent_graph
                                 graph_with_memory = parent_graph.builder.compile(checkpointer=saver)
                                 
-                                graph_with_memory.update_state(actual_config, {"status": JobStatus.APPROVED.value, "user_feedback": ""})
+                                state_update = {"status": JobStatus.APPROVED.value, "user_feedback": ""}
+                                
+                                # Read the disk version so their manual edits are injected back into state!
+                                if os.path.exists(diffs_path):
+                                    try:
+                                        from src.schemas import ResumeDiffSchema
+                                        with open(diffs_path, "r", encoding="utf-8") as f:
+                                            disk_diffs = json.load(f)
+                                        state_update["resume_diffs"] = ResumeDiffSchema.model_validate(disk_diffs)
+                                    except Exception as e:
+                                        print(f"Error validating modified resume_diffs from disk: {e}")
+                                        
+                                graph_with_memory.update_state(actual_config, state_update)
                                 
                                 parent_config = {
                                     "configurable": {

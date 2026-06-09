@@ -71,6 +71,21 @@ def revise_strategy(state: ChildGraphState) -> Dict[str, Any]:
         resume_diffs = ResumeDiffSchema.model_validate(resume_diffs)
     resume_diffs = _validate_resume_diffs(resume_diffs, state.get("base_resume", {}), constraints)
 
+    # Save resume_diffs to data/output/{job_id}/resume_diffs.json
+    job_details = state.get("job_details")
+    if job_details:
+        job_id = job_details.get("job_id", "unknown_job") if isinstance(job_details, dict) else getattr(job_details, "job_id", "unknown_job")
+        import os
+        output_dir = os.path.join("data", "output", str(job_id))
+        os.makedirs(output_dir, exist_ok=True)
+        diffs_path = os.path.join(output_dir, "resume_diffs.json")
+        try:
+            with open(diffs_path, "w", encoding="utf-8") as f:
+                f.write(_to_json(resume_diffs))
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning(f"Could not save resume_diffs.json: {e}")
+
     return {
         "strategy_markdown": response.strategy_markdown,
         "resume_diffs": resume_diffs,

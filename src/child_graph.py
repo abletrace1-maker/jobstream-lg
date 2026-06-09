@@ -76,7 +76,8 @@ os.makedirs("data", exist_ok=True)
 # The task says: initialize SqliteSaver using from_conn_string('data/checkpoints.sqlite').
 # Let's try to extract from context manager.
 # Actually, let's just create connection manually to keep it global.
-_conn = sqlite3.connect("data/checkpoints.sqlite", check_same_thread=False)
+db_path = ":memory:" if os.environ.get("TESTING") == "1" else "data/checkpoints.sqlite"
+_conn = sqlite3.connect(db_path, check_same_thread=False)
 sqlite_saver = SqliteSaver(_conn)
 
 # Compile child graph

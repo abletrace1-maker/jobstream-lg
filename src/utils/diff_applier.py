@@ -45,8 +45,8 @@ def apply_diffs(base_resume: Dict[str, Any], diffs: List[Dict[str, Any]]) -> Dic
             logger.warning("Diff is missing 'section' path.")
             continue
             
-        if action not in ("replace", "update"):
-            logger.warning(f"Unsupported action '{action}' for path {path_str}. Only 'replace' and 'update' are supported.")
+        if action not in ("replace", "update", "add", "insert", "remove", "delete", "rename"):
+            logger.warning(f"Unsupported action '{action}' for path {path_str}.")
             continue
             
         path = parse_json_path(path_str)
@@ -62,9 +62,28 @@ def apply_diffs(base_resume: Dict[str, Any], diffs: List[Dict[str, Any]]) -> Dic
                 
             final_key = path[-1]
             
-            # Additional check: avoid trying to set an index if current is not a list, etc.
-            # But the try/except covers most KeyError/IndexError/TypeError.
-            current[final_key] = new_value
+            if action in ("replace", "update"):
+                current[final_key] = new_value
+            elif action in ("add", "insert"):
+                if isinstance(current, list) and isinstance(final_key, int):
+                    current.insert(final_key, new_value)
+                elif isinstance(current, dict):
+                    # Check if they are trying to append to a list but omitted the index
+                    if final_key in current and isinstance(current[final_key], list) and not isinstance(new_value, list):
+                        current[final_key].append(new_value)
+                    else:
+                        current[final_key] = new_value
+            elif action in ("remove", "delete"):
+                if isinstance(current, list) and isinstance(final_key, int):
+                    if 0 <= final_key < len(current):
+                        current.pop(final_key)
+                elif isinstance(current, dict):
+                    if final_key in current:
+                        del current[final_key]
+            elif action == "rename":
+                if isinstance(current, dict):
+                    if final_key in current:
+                        current[new_value] = current.pop(final_key)
             
         except (KeyError, IndexError, TypeError) as e:
             logger.warning(f"Failed to apply diff at path {path_str}: {str(e)}")

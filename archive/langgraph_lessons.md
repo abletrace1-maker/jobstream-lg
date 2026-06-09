@@ -31,9 +31,9 @@ During the development of the JobStream agent, several critical architectural ov
 **The Lesson:** When asking an LLM to generate paths for programmatic JSON updates (especially arrays), you **must** be hyper-explicit in your Pydantic `Field` descriptions and prompt examples. Loose dot-notation works for objects, but destroys arrays.
 
 ### 5. Defensive Handling of LLM Enums/Actions
-**The Issue:** The system expected the LLM to output `action: "replace"`. The LLM logically outputted `action: "update"`. Because the code strictly checked for `"replace"` and ignored anything else, the agent silently skipped making changes.
-**The Fix:** Broadened the accepted actions to `("replace", "update")`.
-**The Lesson:** Always instruct the AI coder to implement **Defensive Parsing**. If the LLM returns an unexpected synonym, the code should log a warning or map it correctly, not silently fail.
+**The Issue:** The system expected the LLM to output `action: "replace"`. The LLM logically outputted `action: "update"`, and sometimes `action: "add"` or `action: "rename"`. Because the code strictly checked for `"replace"` and ignored anything else, the agent silently skipped making changes, and the diff applier crashed on unsupported actions.
+**The Fix:** Broadened the accepted actions in the schema and the diff applier to support a full suite of JSON modifications: `replace`, `update`, `add`, `insert`, `remove`, `delete`, and `rename`.
+**The Lesson:** Always instruct the AI coder to implement **Defensive Parsing** and **Comprehensive Action Support** when doing programmatic JSON modifications. If the LLM is acting as a JSON patcher, it will naturally try to use a variety of verbs to accomplish its goal. Ensure your diff application logic supports standard CRUD operations on JSON trees.
 
 ### 6. Terminal State Updates
 **The Issue:** The graph successfully generated PDFs and finished its execution, but the UI was stuck waiting because the agent's internal `status` state was never updated from `STRATEGY_DRAFTED` to `APPROVED`.
@@ -95,6 +95,7 @@ When you write a TRD/PRD for your AI coder to build your next agent, copy this c
 - [ ] Provide the exact prompt instructions. 
 - [ ] Are there fields where the LLM might return varying data types (e.g., string vs list)? Explicitly instruct the AI: *"Use `Any` or `Union` for these fields to prevent Pydantic serialization crashes."*
 - [ ] Provide strict instructions on LLM fallbacks: *"If the LLM returns an action like 'update' instead of 'replace', map it defensively. If parsing fails, fall back to the original state—do not crash the node."*
+- [ ] Are you asking the LLM to generate JSON Patches or Diffs? Explicitly instruct the AI: *"Ensure the parsing and application logic supports a full suite of verbs (`add`, `remove`, `replace`, `rename`) to account for natural LLM reasoning."*
 
 ### 4. Human-in-the-Loop (HITL) Integration
 - [ ] Which nodes have `interrupt_before` or `interrupt_after`?

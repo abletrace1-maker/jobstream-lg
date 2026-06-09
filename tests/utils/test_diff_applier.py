@@ -79,6 +79,32 @@ def test_apply_diffs_invalid_path(caplog):
     assert "Failed to apply diff at path invalid_section.nested" in caplog.text
     assert "Failed to apply diff at path professional_summary[5]" in caplog.text
 
+def test_apply_diffs_advanced_actions():
+    base_resume = {
+        "skills": {
+            "languages": ["Python"]
+        },
+        "professional_experience": [
+            {"company": "A"}
+        ]
+    }
+    
+    diffs = [
+        {"action": "add", "section": "skills.frameworks", "new_value": ["React"]},
+        {"action": "add", "section": "skills.languages", "new_value": "Go"},
+        {"action": "rename", "section": "skills.frameworks", "new_value": "frontend_frameworks"},
+        {"action": "remove", "section": "professional_experience[0]"},
+        {"action": "add", "section": "professional_experience[0]", "new_value": {"company": "B"}}
+    ]
+    
+    result = apply_diffs(base_resume, diffs)
+    
+    assert "frameworks" not in result["skills"]
+    assert result["skills"]["frontend_frameworks"] == ["React"]
+    assert result["skills"]["languages"] == ["Python", "Go"]
+    assert len(result["professional_experience"]) == 1
+    assert result["professional_experience"][0]["company"] == "B"
+
 def test_apply_diffs_unsupported_action(caplog):
     base_resume = {
         "professional_summary": "Old summary"
@@ -86,7 +112,7 @@ def test_apply_diffs_unsupported_action(caplog):
     
     diffs = [
         {
-            "action": "add",
+            "action": "unknown_action",
             "section": "professional_summary",
             "new_value": "New summary"
         }
@@ -96,4 +122,4 @@ def test_apply_diffs_unsupported_action(caplog):
         result = apply_diffs(base_resume, diffs)
         
     assert result == base_resume
-    assert "Unsupported action 'add'" in caplog.text
+    assert "Unsupported action 'unknown_action'" in caplog.text
